@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Rutas de prueba
 app.get("/", (req, res) => {
-  res.send("MindBalance backend funcionando perfectamente 🧠⚙️");
+  res.send("MindBalance backend funcionando");
 });
 
 // Aquí importarás tus routers cuando los crees:
