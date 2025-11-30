@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import Usuario from "../models/Usuario";
+import Usuario from "../models/Usuario.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
 
@@ -29,7 +29,9 @@ export const autenticar = async (
 export const requireRol = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const usuario = (req as any).usuario;
+    console.log(`[AuthRole] User: ${usuario?.email}, Role: ${usuario?.rol}, Required: ${roles}`);
     if (!usuario || !roles.includes(usuario.rol)) {
+      console.log("[AuthRole] Access denied");
       return res.status(403).json({ mensaje: "No autorizado" });
     }
     next();

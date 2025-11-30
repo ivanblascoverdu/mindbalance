@@ -1,15 +1,15 @@
 import { Router } from "express";
 import {
-  registro,
-  login,
-  obtenerUsuarioActual,
-} from "../controllers/authController";
-import { autenticar } from "../middlewares/auth";
+  registrarUsuario,
+  loginUsuario,
+  obtenerPerfil,
+} from "../controllers/authController.js";
+import { autenticar } from "../middleware/auth.js";
 
 const router = Router();
 
-router.post("/registro", registro);
-router.post("/login", login);
-router.get("/me", autenticar, obtenerUsuarioActual);
+router.post("/registro", registrarUsuario);
+router.post("/login", loginUsuario);
+router.get("/me", autenticar, obtenerPerfil);
 
 export default router;

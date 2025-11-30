@@ -6,7 +6,7 @@ export interface IUsuario extends Document {
   email: string;
   password: string;
   rol: "usuario" | "profesional" | "admin";
-  estado: "activo" | "inactivo";
+  estado: "activo" | "inactivo" | "pendiente";
   fechaRegistro: Date;
   matchPassword(password: string): Promise<boolean>;
 }
@@ -38,7 +38,7 @@ const usuarioSchema = new Schema<IUsuario>({
   },
   estado: {
     type: String,
-    enum: ["activo", "inactivo"],
+    enum: ["activo", "inactivo", "pendiente"],
     default: "activo",
   },
   fechaRegistro: {

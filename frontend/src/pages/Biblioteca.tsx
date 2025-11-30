@@ -1,129 +1,222 @@
+import Grid from "@mui/material/Grid";
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   Chip,
-  TextField,
   Skeleton,
+  Tabs,
+  Tab,
+  Button,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import api from "../services/api";
+import ArticleIcon from "@mui/icons-material/Article";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useAuth } from "../context/AuthContext";
 
-const recursos = [
-  {
-    tema: "Mindfulness",
-    titulo: "Introducción al Mindfulness",
-    tipo: "Artículo",
-    duracion: "5 min",
-  },
-  {
-    tema: "Meditación",
-    titulo: "Meditación guiada para principiantes",
-    tipo: "Audio",
-    duracion: "10 min",
-  },
-  {
-    tema: "Ansiedad",
-    titulo: "Técnicas de respiración para la ansiedad",
-    tipo: "Vídeo",
-    duracion: "8 min",
-  },
-  {
-    tema: "Estrés",
-    titulo: "Gestión del estrés laboral",
-    tipo: "Artículo",
-    duracion: "7 min",
-  },
-  {
-    tema: "Sueño",
-    titulo: "Rutina nocturna para mejor sueño",
-    tipo: "Audio",
-    duracion: "12 min",
-  },
-  {
-    tema: "Sueño",
-    titulo: "Meditación para dormir",
-    tipo: "Audio",
-    duracion: "20 min",
-  },
-];
+interface Recurso {
+  _id: string;
+  titulo: string;
+  descripcion: string;
+  tipo: "articulo" | "video" | "audio";
+  url: string;
+  categoria: string;
+  tags: string[];
+}
 
 export default function Biblioteca() {
   const [loading, setLoading] = useState(true);
+  const [recursos, setRecursos] = useState<Recurso[]>([]);
+  const [filtroTipo, setFiltroTipo] = useState("todos");
+  const { usuario } = useAuth();
+  const isAdmin = usuario?.rol === "admin";
+  const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1200);
+    const fetchRecursos = async () => {
+      try {
+        const { data } = await api.get("/recursos");
+        setRecursos(data);
+      } catch (error) {
+        console.error("Error cargando recursos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRecursos();
   }, []);
 
+  const recursosFiltrados =
+    filtroTipo === "todos"
+      ? recursos
+      : recursos.filter((r) => r.tipo === filtroTipo);
+
+  const getIcon = (tipo: string) => {
+    switch (tipo) {
+      case "video":
+        return <PlayCircleIcon fontSize="small" />;
+      case "audio":
+        return <HeadphonesIcon fontSize="small" />;
+      default:
+        return <ArticleIcon fontSize="small" />;
+    }
+  };
+
+  const handleOpenRecurso = (r: Recurso) => {
+    if (isAdmin) {
+      window.open(r.url, "_blank");
+    } else {
+      setSelectedRecurso(r);
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedRecurso(null);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Box>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Biblioteca Psicoeducativa
-        </Typography>
-        <Typography color="text.secondary" mb={3}>
-          Recursos validados por profesionales de la salud mental
-        </Typography>
-        <TextField
-          label="Buscar recursos..."
-          variant="outlined"
-          size="small"
-          sx={{ mb: 3, width: "100%", maxWidth: 400 }}
-          disabled={loading}
-        />
-        <Grid container spacing={3}>
-          {loading
-            ? [1, 2, 3, 4, 5, 6].map((n) => (
-                <Grid item xs={12} sm={6} md={4} key={n}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Skeleton
-                        variant="rectangular"
-                        height={30}
-                        width={80}
-                        sx={{ mb: 2 }}
-                      />
-                      <Skeleton variant="text" height={30} />
-                      <Skeleton variant="text" height={20} width="70%" />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))
-            : recursos.map((r, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card
-                    variant="outlined"
-                    sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}
-                  >
-                    <CardContent>
-                      <Chip label={r.tema} sx={{ mb: 2 }} />
-                      <Typography variant="h6" fontWeight={700}>
-                        {r.titulo}
-                      </Typography>
-                      <Typography color="text.secondary">
-                        {r.tipo} • {r.duracion}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-        </Grid>
-        {!loading && (
-          <Box mt={4}>
-            <Chip color="success" label="Contenido validado" />
-            <Typography color="text.secondary" fontSize={15} mt={1}>
-              Todos los recursos han sido revisados y validados por
-              profesionales de la salud mental certificados.
-            </Typography>
-          </Box>
+    <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h4" fontWeight={700} gutterBottom>
+            Biblioteca Psicoeducativa
+          </Typography>
+          <Typography color="text.secondary">
+            Recursos validados por profesionales de la salud mental
+          </Typography>
+        </Box>
+        {isAdmin && (
+          <Button variant="contained" color="primary">
+            + Nuevo Recurso
+          </Button>
         )}
       </Box>
-    </motion.div>
+
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+        <Tabs
+          value={filtroTipo}
+          onChange={(_, newValue) => setFiltroTipo(newValue)}
+        >
+          <Tab label="Todos" value="todos" />
+          <Tab label="Artículos" value="articulo" />
+          <Tab label="Videos" value="video" />
+          <Tab label="Audios" value="audio" />
+        </Tabs>
+      </Box>
+
+      <Grid container spacing={3}>
+        {loading
+          ? [1, 2, 3, 4, 5, 6].map((n) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={n}>
+                <Skeleton
+                  variant="rectangular"
+                  height={180}
+                  sx={{ borderRadius: 2 }}
+                />
+              </Grid>
+            ))
+          : recursosFiltrados.map((r) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={r._id}>
+                <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Box display="flex" justifyContent="space-between" mb={1}>
+                      <Chip label={r.categoria} size="small" color="primary" variant="outlined" />
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Chip 
+                            icon={getIcon(r.tipo)} 
+                            label={r.tipo.charAt(0).toUpperCase() + r.tipo.slice(1)} 
+                            size="small" 
+                        />
+                        {isAdmin && (
+                            <Box>
+                                <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                                <IconButton size="small"><DeleteIcon fontSize="small" /></IconButton>
+                            </Box>
+                        )}
+                      </Box>
+                    </Box>
+                    <Typography fontWeight={700} variant="h6" gutterBottom>
+                      {r.titulo}
+                    </Typography>
+                    <Typography color="text.secondary" variant="body2" mb={2}>
+                      {r.descripcion}
+                    </Typography>
+                    <Box mt="auto">
+                        <Button 
+                            variant="outlined" 
+                            size="small" 
+                            onClick={() => handleOpenRecurso(r)}
+                            fullWidth
+                        >
+                            {isAdmin ? "Ver Enlace" : "Ver Recurso"}
+                        </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+      </Grid>
+
+      <Dialog open={!!selectedRecurso} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>{selectedRecurso?.titulo}</DialogTitle>
+        <DialogContent dividers>
+          {selectedRecurso?.tipo === "video" && (
+            <Box display="flex" justifyContent="center" my={2}>
+               {/* Simulating video embed. In real app, parse URL to get embed ID */}
+               <Box 
+                 width="100%" 
+                 height={400} 
+                 bgcolor="black" 
+                 display="flex" 
+                 alignItems="center" 
+                 justifyContent="center"
+                 color="white"
+               >
+                 <Typography>Reproductor de Video Simulado ({selectedRecurso.url})</Typography>
+               </Box>
+            </Box>
+          )}
+          
+          {selectedRecurso?.tipo === "audio" && (
+            <Box display="flex" flexDirection="column" alignItems="center" my={4}>
+               <HeadphonesIcon sx={{ fontSize: 60, color: "text.secondary", mb: 2 }} />
+               <audio controls style={{ width: "100%" }}>
+                 <source src={selectedRecurso.url} type="audio/mpeg" />
+                 Tu navegador no soporta audio.
+               </audio>
+            </Box>
+          )}
+
+          {selectedRecurso?.tipo === "articulo" && (
+            <Box>
+              <Typography paragraph>
+                Aquí se mostraría el contenido completo del artículo. Como estamos usando URLs externas de ejemplo, 
+                no podemos incrustarlas directamente por seguridad (CORS/X-Frame-Options).
+              </Typography>
+              <Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </Typography>
+              <Button variant="contained" href={selectedRecurso.url} target="_blank">
+                Leer artículo original completo
+              </Button>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

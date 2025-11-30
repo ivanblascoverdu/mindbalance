@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider, CircularProgress, Box } from "@mui/material";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,11 +6,11 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { useState } from "react";
 import theme from "./theme/theme";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import Dashboard from "./pages/Dashboard";
 import Programas from "./pages/Programas";
@@ -20,10 +20,30 @@ import Sesiones from "./pages/Sesiones";
 import Progreso from "./pages/Progreso";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Pacientes from "./pages/profesional/Pacientes";
+import Agenda from "./pages/profesional/Agenda";
+import Usuarios from "./pages/admin/Usuarios";
+import Configuracion from "./pages/Configuracion";
+import ProgramaDetalle from "./pages/ProgramaDetalle";
 
-function AppWrapper() {
-  const [authenticated, setAuthenticated] = useState(true);
+function AppContent() {
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   // Oculta Sidebar y TopBar en Login/Register para UI más limpia
   const hideNav =
@@ -47,28 +67,20 @@ function AppWrapper() {
             <Route
               path="/login"
               element={
-                authenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <Login setAuthenticated={setAuthenticated} />
-                )
+                isAuthenticated ? <Navigate to="/" replace /> : <Login />
               }
             />
             <Route
               path="/register"
               element={
-                authenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <Register setAuthenticated={setAuthenticated} />
-                )
+                isAuthenticated ? <Navigate to="/" replace /> : <Register />
               }
             />
 
             <Route
               path="/"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -76,15 +88,23 @@ function AppWrapper() {
             <Route
               path="/programas"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Programas />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/programas/:id"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <ProgramaDetalle />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/biblioteca"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Biblioteca />
                 </ProtectedRoute>
               }
@@ -92,7 +112,7 @@ function AppWrapper() {
             <Route
               path="/comunidad"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Comunidad />
                 </ProtectedRoute>
               }
@@ -100,7 +120,7 @@ function AppWrapper() {
             <Route
               path="/sesiones"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Sesiones />
                 </ProtectedRoute>
               }
@@ -108,8 +128,51 @@ function AppWrapper() {
             <Route
               path="/progreso"
               element={
-                <ProtectedRoute authenticated={authenticated}>
+                <ProtectedRoute authenticated={isAuthenticated}>
                   <Progreso />
+                </ProtectedRoute>
+              }
+            />
+            {/* Rutas Profesional */}
+            <Route
+              path="/pacientes"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Pacientes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agenda"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Agenda />
+                </ProtectedRoute>
+              }
+            />
+            {/* Rutas Admin */}
+            <Route
+              path="/admin/usuarios"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Usuarios />
+                </ProtectedRoute>
+              }
+            />
+            {/* Configuración (Común) */}
+            <Route
+              path="/admin/config"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Configuracion />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/configuracion"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Configuracion />
                 </ProtectedRoute>
               }
             />
@@ -120,12 +183,13 @@ function AppWrapper() {
   );
 }
 
-// App ahora envuelve todo en Router. Así puedes usar useLocation ;)
 function App() {
   return (
-    <Router>
-      <AppWrapper />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

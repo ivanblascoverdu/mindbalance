@@ -10,9 +10,10 @@ import {
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../hooks/useApi";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-export default function Login({ setAuthenticated }) {
+export default function Login() {
   const {
     register,
     handleSubmit,
@@ -20,14 +21,16 @@ export default function Login({ setAuthenticated }) {
   } = useForm();
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
-      await apiRequest("http://localhost:4000/api/auth/login", "POST", data);
-      setAuthenticated(true);
-      navigate("/programas");
-    } catch {
-      setError("Email o contraseña incorrectos");
+      const response = await api.post("/auth/login", data);
+      const { token, ...usuario } = response.data;
+      login(token, usuario);
+      navigate("/");
+    } catch (err: any) {
+      setError(err.response?.data?.mensaje || "Email o contraseña incorrectos");
     }
   };
 
@@ -50,7 +53,7 @@ export default function Login({ setAuthenticated }) {
               label="Email"
               {...register("email", { required: "Email obligatorio" })}
               error={!!errors.email}
-              helperText={errors.email?.message}
+              helperText={errors.email?.message as string}
             />
             <TextField
               margin="normal"
@@ -59,7 +62,7 @@ export default function Login({ setAuthenticated }) {
               label="Contraseña"
               {...register("password", { required: "Contraseña obligatoria" })}
               error={!!errors.password}
-              helperText={errors.password?.message}
+              helperText={errors.password?.message as string}
             />
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Entrar
@@ -68,7 +71,7 @@ export default function Login({ setAuthenticated }) {
               color="secondary"
               variant="text"
               onClick={() => navigate("/register")}
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, width: "100%" }}
             >
               ¿No tienes cuenta? Regístrate
             </Button>

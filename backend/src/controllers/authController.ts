@@ -1,155 +1,137 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
+import Usuario from "../models/Usuario.js";
 import jwt from "jsonwebtoken";
-import Usuario, { IUsuario } from "../models/Usuario";
 
 const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
 
-// Generar token JWT
-const generarToken = (usuarioId: string) => {
-  return jwt.sign({ id: usuarioId }, JWT_SECRET, {
-    expiresIn: "7d",
+// Generar Token
+const generarToken = (id: string) => {
+  return jwt.sign({ id }, JWT_SECRET, {
+    expiresIn: "30d",
   });
 };
 
-// REGISTRO
-export const registro = async (req: Request, res: Response) => {
+// @desc    Registrar un nuevo usuario
+// @route   POST /api/auth/registro
+// @access  Public
+// @desc    Registrar un nuevo usuario
+// @route   POST /api/auth/registro
+// @access  Public
+export const registrarUsuario = async (req: Request, res: Response) => {
   try {
-    const { nombre, email, password, confirmPassword } = req.body;
+    const { nombre, email, password, confirmPassword, rol } = req.body;
 
-    // Validaciones
-    if (!nombre || !email || !password || !confirmPassword) {
-      return res.status(400).json({
-        mensaje: "Por favor, completa todos los campos",
-      });
+    if (!nombre || !email || !password) {
+      return res.status(400).json({ mensaje: "Por favor complete todos los campos" });
     }
 
     if (password !== confirmPassword) {
-      return res.status(400).json({
-        mensaje: "Las contraseñas no coinciden",
-      });
+      return res.status(400).json({ mensaje: "Las contraseñas no coinciden" });
     }
 
-    // Verificar si el usuario ya existe
-    const usuarioExistente = await Usuario.findOne({ email });
-    if (usuarioExistente) {
-      return res.status(400).json({
-        mensaje: "Este email ya está registrado",
-      });
+    // Verificar si el usuario existe
+    const usuarioExiste = await Usuario.findOne({ email });
+
+    if (usuarioExiste) {
+      return res.status(400).json({ mensaje: "El usuario ya existe" });
     }
 
-    // Crear nuevo usuario
-    const nuevoUsuario = new Usuario({
+    // Determinar estado inicial
+    const rolUsuario = rol === "profesional" ? "profesional" : "usuario";
+    const estadoInicial = rolUsuario === "profesional" ? "pendiente" : "activo";
+
+    // Crear usuario
+    const usuario = await Usuario.create({
       nombre,
       email,
       password,
+      rol: rolUsuario,
+      estado: estadoInicial,
     });
 
-    await nuevoUsuario.save();
+    if (usuario) {
+      // Si es profesional, no devolvemos token aún (o devolvemos mensaje específico)
+      if (estadoInicial === "pendiente") {
+        return res.status(201).json({
+          mensaje: "Registro exitoso. Tu cuenta de profesional está pendiente de aprobación por un administrador.",
+          pendiente: true,
+        });
+      }
 
-    // Generar token
-    const token = generarToken(nuevoUsuario._id.toString());
-
-    res.status(201).json({
-      mensaje: "Usuario registrado exitosamente",
-      token,
-      usuario: {
-        id: nuevoUsuario._id,
-        nombre: nuevoUsuario.nombre,
-        email: nuevoUsuario.email,
-        rol: nuevoUsuario.rol,
-      },
-    });
+      res.status(201).json({
+        _id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+        token: generarToken(usuario._id as string),
+      });
+    } else {
+      res.status(400).json({ mensaje: "Datos de usuario inválidos" });
+    }
   } catch (error) {
-    console.error("Error en registro:", error);
-    res.status(500).json({
-      mensaje: "Error en el servidor",
-    });
+    console.error(error);
+    res.status(500).json({ mensaje: "Error en el servidor" });
   }
 };
 
-// LOGIN
-export const login = async (req: Request, res: Response) => {
+// @desc    Autenticar usuario y obtener token
+// @route   POST /api/auth/login
+// @access  Public
+export const loginUsuario = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    // Validaciones
-    if (!email || !password) {
-      return res.status(400).json({
-        mensaje: "Email y contraseña son requeridos",
-      });
-    }
-
-    // Buscar usuario y incluir password (normalmente está oculto)
+    // Verificar email
     const usuario = await Usuario.findOne({ email }).select("+password");
 
-    if (!usuario) {
-      return res.status(401).json({
-        mensaje: "Credenciales inválidas",
-      });
-    }
+    if (usuario && (await usuario.matchPassword(password))) {
+      if (usuario.estado === "pendiente") {
+        return res.status(403).json({ 
+          mensaje: "Tu cuenta está pendiente de aprobación. Contacta con el administrador." 
+        });
+      }
 
-    // Verificar password
-    const passwordValida = await usuario.matchPassword(password);
-    if (!passwordValida) {
-      return res.status(401).json({
-        mensaje: "Credenciales inválidas",
-      });
-    }
+      if (usuario.estado === "inactivo") {
+        return res.status(403).json({ 
+          mensaje: "Tu cuenta ha sido desactivada." 
+        });
+      }
 
-    // Generar token
-    const token = generarToken(usuario._id.toString());
-
-    res.json({
-      mensaje: "Sesión iniciada correctamente",
-      token,
-      usuario: {
-        id: usuario._id,
+      res.json({
+        _id: usuario._id,
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
-      },
-    });
+        token: generarToken(usuario._id as string),
+      });
+    } else {
+      res.status(401).json({ mensaje: "Credenciales inválidas" });
+    }
   } catch (error) {
-    console.error("Error en login:", error);
-    res.status(500).json({
-      mensaje: "Error en el servidor",
-    });
+    console.error(error);
+    res.status(500).json({ mensaje: "Error en el servidor" });
   }
 };
 
-// OBTENER USUARIO ACTUAL (requiere token)
-export const obtenerUsuarioActual = async (req: Request, res: Response) => {
+// @desc    Obtener datos del usuario actual
+// @route   GET /api/auth/me
+// @access  Private
+export const obtenerPerfil = async (req: Request, res: Response) => {
   try {
-    // El middleware de autenticación debería setear req.usuarioId
-    const usuarioId = (req as any).usuarioId;
+    const usuario = await Usuario.findById((req as any).usuarioId);
 
-    if (!usuarioId) {
-      return res.status(401).json({
-        mensaje: "No autorizado",
-      });
-    }
-
-    const usuario = await Usuario.findById(usuarioId);
-
-    if (!usuario) {
-      return res.status(404).json({
-        mensaje: "Usuario no encontrado",
-      });
-    }
-
-    res.json({
-      usuario: {
-        id: usuario._id,
+    if (usuario) {
+      res.json({
+        _id: usuario._id,
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
-        estado: usuario.estado,
-      },
-    });
+      });
+    } else {
+      res.status(404).json({ mensaje: "Usuario no encontrado" });
+    }
   } catch (error) {
-    console.error("Error obteniendo usuario:", error);
-    res.status(500).json({
-      mensaje: "Error en el servidor",
-    });
+    console.error(error);
+    res.status(500).json({ mensaje: "Error en el servidor" });
   }
 };

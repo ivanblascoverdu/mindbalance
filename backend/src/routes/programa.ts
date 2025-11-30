@@ -5,8 +5,8 @@ import {
   obtenerPrograma,
   editarPrograma,
   borrarPrograma,
-} from "../controllers/programaController";
-import { autenticar, requireRol } from "../middleware/authRole";
+} from "../controllers/programaController.js";
+import { autenticar, requireRol } from "../middleware/authRole.js";
 
 const router = Router();
 

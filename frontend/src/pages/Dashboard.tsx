@@ -1,10 +1,12 @@
-import { Box, Grid, Typography, Skeleton } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { Box, Typography, Skeleton } from "@mui/material";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import QuickAccessCards from "../components/QuickAccessCards";
 import WeeklyProgress from "../components/WeeklyProgress";
 import RecommendedResources from "../components/RecommendedResources";
 import NextSession from "../components/NextSession";
+import ProgressChart from "../components/ProgressChart";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,17 @@ export default function Dashboard() {
               />
             ) : (
               <NextSession />
+            )}
+          </Grid>
+          <Grid item xs={12} md={6}>
+            {loading ? (
+              <Skeleton
+                variant="rectangular"
+                height={300}
+                sx={{ borderRadius: 2 }}
+              />
+            ) : (
+              <ProgressChart />
             )}
           </Grid>
         </Grid>

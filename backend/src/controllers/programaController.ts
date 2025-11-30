@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import Programa from "../models/Programa";
+import type { Request, Response, NextFunction } from "express";
+import Programa from "../models/Programa.js";
 
 // Crear programa
 export const crearPrograma = async (req: Request, res: Response) => {

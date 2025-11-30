@@ -1,170 +1,190 @@
+import Grid from "@mui/material/Grid";
 import {
   Box,
   Typography,
   Card,
   CardContent,
   Button,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
   Chip,
   Snackbar,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import ConfirmDialog from "../components/ConfirmDialog";
+import { useState, useEffect } from "react";
+import api from "../services/api";
 
-const profesionales = [
-  {
-    nombre: "Dra. María González",
-    especialidades: ["Ansiedad", "Depresión", "Terapia Cognitivo-Conductual"],
-    experiencia: 15,
-  },
-  {
-    nombre: "Dr. Carlos Ruiz",
-    especialidades: ["Estrés", "Mindfulness", "Gestión Emocional"],
-    experiencia: 10,
-  },
-  {
-    nombre: "Dra. Ana López",
-    especialidades: ["Trastornos del Sueño", "Trauma", "EMDR"],
-    experiencia: 12,
-  },
-];
+interface Profesional {
+  _id: string;
+  nombre: string;
+  email: string;
+}
+
+interface Cita {
+  _id: string;
+  profesional: Profesional;
+  fecha: string;
+  estado: string;
+  linkReunion?: string;
+}
 
 export default function Sesiones() {
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selectedProf, setSelectedProf] = useState("");
+  const [profesionales, setProfesionales] = useState<Profesional[]>([]);
+  const [citas, setCitas] = useState<Cita[]>([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedProf, setSelectedProf] = useState<Profesional | null>(null);
+  const [fecha, setFecha] = useState("");
   const [snackOpen, setSnackOpen] = useState(false);
 
-  const handleReservar = (nombre: string) => {
-    setSelectedProf(nombre);
-    setConfirmOpen(true);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [profRes, citasRes] = await Promise.all([
+        api.get("/citas/profesionales"),
+        api.get("/citas"),
+      ]);
+      setProfesionales(profRes.data);
+      setCitas(citasRes.data);
+    } catch (error) {
+      console.error("Error cargando datos:", error);
+    }
   };
 
-  const handleConfirm = () => {
-    setConfirmOpen(false);
-    setSnackOpen(true);
-    // Aquí harías el fetch al backend
+  const handleReservarClick = (prof: Profesional) => {
+    setSelectedProf(prof);
+    setOpenDialog(true);
+  };
+
+  const handleConfirmarReserva = async () => {
+    if (!selectedProf || !fecha) return;
+    try {
+      await api.post("/citas", {
+        profesionalId: selectedProf._id,
+        fecha,
+        notas: "Reserva desde la web",
+      });
+      setOpenDialog(false);
+      setSnackOpen(true);
+      fetchData();
+    } catch (error) {
+      console.error("Error reservando:", error);
+    }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Box>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Teleconsultas
-        </Typography>
-        <Typography color="text.secondary" mb={3}>
-          Sesiones profesionales seguras y confidenciales
-        </Typography>
-        <Box mb={4}>
-          <Typography variant="h6" fontWeight={700} mb={2}>
-            Próximas sesiones
-          </Typography>
-          <Card
-            sx={{
-              background: "linear-gradient(90deg, #14c3da 0%, #1479fb 100%)",
-              color: "#fff",
-              boxShadow: 3,
-            }}
-          >
-            <CardContent>
-              <Typography fontWeight={700}>Dra. María González</Typography>
-              <Typography>Martes, 28 Oct • 10:00 AM</Typography>
-              <Typography fontSize={14} mt={1}>
-                Seguimiento
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{ background: "#fff", color: "#1479fb", mt: 2 }}
-              >
-                Unirse
-              </Button>
-            </CardContent>
-          </Card>
-        </Box>
-        <Typography variant="h6" fontWeight={700}>
-          Nuestros profesionales
-        </Typography>
-        <Grid container spacing={3} my={1}>
-          {profesionales.map((p) => (
-            <Grid item xs={12} md={4} key={p.nombre}>
+    <Box>
+      <Typography variant="h4" fontWeight={700} gutterBottom>
+        Teleconsultas
+      </Typography>
+      <Typography color="text.secondary" mb={3}>
+        Sesiones profesionales seguras y confidenciales
+      </Typography>
+
+      <Typography variant="h5" fontWeight={700} gutterBottom mt={4}>
+        Mis Citas Programadas
+      </Typography>
+      {citas.length === 0 ? (
+        <Typography color="text.secondary">No tienes citas programadas.</Typography>
+      ) : (
+        <Grid container spacing={2} mb={4}>
+          {citas.map((cita) => (
+            <Grid item xs={12} md={6} key={cita._id}>
               <Card variant="outlined">
                 <CardContent>
-                  <Chip
-                    label={
-                      p.nombre.split(" ")[1][0] + p.nombre.split(" ")[2][0]
-                    }
-                    sx={{ mr: 1, mb: 1 }}
-                  />
-                  <Typography fontWeight={700}>{p.nombre}</Typography>
-                  <Typography fontSize={14} color="text.secondary">
-                    {p.experiencia} años de experiencia
+                  <Typography fontWeight={700}>
+                    {new Date(cita.fecha).toLocaleString()}
                   </Typography>
-                  <Box mt={1}>
-                    <Typography fontSize={13} fontWeight={600} mb={1}>
-                      Especialidades:
-                    </Typography>
-                    {p.especialidades.map((e) => (
-                      <Chip
-                        label={e}
-                        size="small"
-                        sx={{ mr: 1, mb: 1 }}
-                        key={e}
-                      />
-                    ))}
-                  </Box>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    onClick={() => handleReservar(p.nombre)}
-                  >
-                    Reservar sesión
-                  </Button>
+                  <Typography>
+                    Profesional: {cita.profesional?.nombre || "N/A"}
+                  </Typography>
+                  <Chip
+                    label={cita.estado.toUpperCase()}
+                    color={
+                      cita.estado === "confirmada"
+                        ? "success"
+                        : cita.estado === "pendiente"
+                        ? "warning"
+                        : "default"
+                    }
+                    size="small"
+                    sx={{ mt: 1 }}
+                  />
+                  {cita.linkReunion && (
+                    <Button
+                      href={cita.linkReunion}
+                      target="_blank"
+                      variant="contained"
+                      size="small"
+                      sx={{ ml: 2, mt: 1 }}
+                    >
+                      Unirse
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
-        <Box mt={4}>
-          <Typography fontWeight={700}>Sobre las sesiones</Typography>
-          <List>
-            <ListItem>
-              <ListItemText primary="Duración: 50 minutos por sesión" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Plataforma: Videollamada segura y cifrada" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Cancelación: Hasta 24 horas antes sin cargo" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Confidencialidad: 100% garantizada bajo normativa RGPD" />
-            </ListItem>
-          </List>
-        </Box>
-      </Box>
+      )}
 
-      <ConfirmDialog
-        open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={handleConfirm}
-        title="Confirmar reserva"
-        message={`¿Estás seguro de que quieres reservar una sesión con ${selectedProf}?`}
-      />
+      <Typography variant="h5" fontWeight={700} gutterBottom mt={4}>
+        Profesionales Disponibles
+      </Typography>
+      <Grid container spacing={3}>
+        {profesionales.map((p) => (
+          <Grid item xs={12} md={4} key={p._id}>
+            <Card variant="outlined">
+              <CardContent>
+                <Typography fontWeight={700}>{p.nombre}</Typography>
+                <Typography color="text.secondary" gutterBottom>
+                  Psicólogo Clínico
+                </Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{ mt: 2 }}
+                  onClick={() => handleReservarClick(p)}
+                >
+                  Reservar sesión
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Reservar con {selectedProf?.nombre}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Fecha y Hora"
+            type="datetime-local"
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
+          <Button onClick={handleConfirmarReserva} variant="contained">
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackOpen}
         autoHideDuration={4000}
         onClose={() => setSnackOpen(false)}
-        message="¡Sesión reservada con éxito!"
+        message="¡Solicitud de cita enviada!"
       />
-    </motion.div>
+    </Box>
   );
 }

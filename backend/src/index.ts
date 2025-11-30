@@ -1,75 +1,43 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import programaRoutes from "./routes/programa";
+import mongoose from "mongoose";
+import authRoutes from "./routes/auth.js";
+import programaRoutes from "./routes/programa.js";
+import recursoRoutes from "./routes/recurso.js";
+import postRoutes from "./routes/post.js";
+import citaRoutes from "./routes/cita.js";
+import metaRoutes from "./routes/meta.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+
+// Rutas
+app.use("/api/auth", authRoutes);
 app.use("/api/programas", programaRoutes);
+app.use("/api/recursos", recursoRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/citas", citaRoutes);
+app.use("/api/metas", metaRoutes);
+app.use("/api/admin", adminRoutes);
 
-// ==================== MODELOS ====================
-
-interface IUsuario extends Document {
-  nombre: string;
-  email: string;
-  password: string;
-  rol: "usuario" | "profesional" | "admin";
-  matchPassword(password: string): Promise<boolean>;
-}
-
-const usuarioSchema = new Schema<IUsuario>({
-  nombre: { type: String, required: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true, select: false },
-  rol: {
-    type: String,
-    default: "usuario",
-    enum: ["usuario", "profesional", "admin"],
-  },
+// Ruta de prueba
+app.get("/", (req, res) => {
+  res.json({ message: "MindBalance API funcionando correctamente ✅" });
 });
 
-usuarioSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-usuarioSchema.methods.matchPassword = async function (password: string) {
-  return await bcrypt.compare(password, this.password);
-};
-
-const Usuario = mongoose.model<IUsuario>("Usuario", usuarioSchema);
-
-// ==================== MIDDLEWARE ====================
-
-const autenticar = (req: any, res: any, next: any) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token)
-      return res.status(401).json({ mensaje: "Token no proporcionado" });
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    req.usuarioId = decoded.id;
-    next();
-  } catch {
-    res.status(401).json({ mensaje: "Token inválido o expirado" });
-  }
-};
-
-// ==================== CONEXIÓN A MONGODB ====================
-
+// Conexión a MongoDB
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || "");
+    const conn = await mongoose.connect(MONGODB_URI || "");
     console.log(`✅ MongoDB conectado: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ Error conectando a MongoDB:`, error);
@@ -77,120 +45,9 @@ const connectDB = async () => {
   }
 };
 
-connectDB();
-
-// ==================== RUTAS ====================
-
-// REGISTRO
-
-app.post("/api/auth/registro", async (req, res) => {
-  const { nombre, email, password, confirmPassword } = req.body;
-
-  // 1. Validaciones básicas
-  if (!nombre || !email || !password || password !== confirmPassword) {
-    return res
-      .status(400)
-      .json({ mensaje: "Datos inválidos o no coinciden las contraseñas." });
-  }
-
-  // 2. Comprobar si el usuario existe (usa tu lógica de BBDD)
-  const usuarioExistente = await Usuario.findOne({ email });
-  if (usuarioExistente) {
-    return res.status(409).json({ mensaje: "Email ya registrado" });
-  }
-
-  // 3. Hashear la contraseña
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(password, salt);
-
-  // 4. Crear usuario
-  const nuevoUsuario = await Usuario.create({
-    nombre,
-    email,
-    password: passwordHash,
-    rol: "usuario",
+// Iniciar servidor
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
   });
-
-  // 5. Generar token
-  const token = jwt.sign({ id: nuevoUsuario._id }, "clave_secreta", {
-    expiresIn: "1d",
-  });
-
-  // 6. Responder
-  res.json({
-    mensaje: "Usuario registrado exitosamente",
-    token,
-    usuario: {
-      id: nuevoUsuario._id,
-      nombre: nuevoUsuario.nombre,
-      email: nuevoUsuario.email,
-      rol: nuevoUsuario.rol,
-    },
-  });
-});
-
-// LOGIN
-app.post("/api/auth/login", async (req: any, res: any) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ mensaje: "Email y contraseña requeridos" });
-    }
-
-    const usuario = await Usuario.findOne({ email }).select("+password");
-    if (!usuario || !(await usuario.matchPassword(password))) {
-      return res.status(401).json({ mensaje: "Credenciales inválidas" });
-    }
-
-    const token = jwt.sign({ id: usuario._id }, JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.json({
-      mensaje: "Sesión iniciada correctamente",
-      token,
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        email,
-        rol: usuario.rol,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error en el servidor" });
-  }
-});
-
-// OBTENER USUARIO ACTUAL
-app.get("/api/auth/me", autenticar, async (req: any, res: any) => {
-  try {
-    const usuario = await Usuario.findById(req.usuarioId);
-    if (!usuario)
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
-
-    res.json({
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error en el servidor" });
-  }
-});
-
-// RUTA DE PRUEBA
-app.get("/", (req: any, res: any) => {
-  res.json({ message: "MindBalance API funcionando correctamente ✅" });
-});
-
-// ==================== INICIAR SERVIDOR ====================
-
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
 });

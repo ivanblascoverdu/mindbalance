@@ -6,28 +6,47 @@ import {
   Card,
   CardContent,
   Snackbar,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../hooks/useApi";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-export default function Register({ setAuthenticated }) {
+export default function Register() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [rol, setRol] = useState("usuario");
 
-  const onSubmit = async (data) => {
+  const password = watch("password");
+
+  const onSubmit = async (data: any) => {
     try {
-      await apiRequest("http://localhost:4000/api/auth/register", "POST", data);
-      setAuthenticated(true);
-      navigate("/programas");
-    } catch {
-      setError("No se pudo crear la cuenta");
+      const response = await api.post("/auth/registro", { ...data, rol });
+      
+      if (response.data.pendiente) {
+        setSuccessMsg(response.data.mensaje);
+        setTimeout(() => navigate("/login"), 5000);
+      } else {
+        const { token, ...usuario } = response.data;
+        login(token, usuario);
+        navigate("/");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.mensaje || "No se pudo crear la cuenta");
     }
   };
 
@@ -50,7 +69,7 @@ export default function Register({ setAuthenticated }) {
               label="Nombre completo"
               {...register("nombre", { required: "Nombre obligatorio" })}
               error={!!errors.nombre}
-              helperText={errors.nombre?.message}
+              helperText={errors.nombre?.message as string}
             />
             <TextField
               margin="normal"
@@ -58,7 +77,7 @@ export default function Register({ setAuthenticated }) {
               label="Email"
               {...register("email", { required: "Email obligatorio" })}
               error={!!errors.email}
-              helperText={errors.email?.message}
+              helperText={errors.email?.message as string}
             />
             <TextField
               margin="normal"
@@ -67,8 +86,42 @@ export default function Register({ setAuthenticated }) {
               label="Contraseña"
               {...register("password", { required: "Contraseña obligatoria" })}
               error={!!errors.password}
-              helperText={errors.password?.message}
+              helperText={errors.password?.message as string}
             />
+            <TextField
+              margin="normal"
+              fullWidth
+              type="password"
+              label="Confirmar Contraseña"
+              {...register("confirmPassword", {
+                required: "Confirmar contraseña es obligatorio",
+                validate: (val) =>
+                  val === password || "Las contraseñas no coinciden",
+              })}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword?.message as string}
+            />
+
+            <FormControl component="fieldset" sx={{ mt: 2 }}>
+              <FormLabel component="legend">Quiero registrarme como:</FormLabel>
+              <RadioGroup
+                row
+                value={rol}
+                onChange={(e) => setRol(e.target.value)}
+              >
+                <FormControlLabel
+                  value="usuario"
+                  control={<Radio />}
+                  label="Cliente"
+                />
+                <FormControlLabel
+                  value="profesional"
+                  control={<Radio />}
+                  label="Profesional"
+                />
+              </RadioGroup>
+            </FormControl>
+
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Crear cuenta
             </Button>
@@ -76,7 +129,7 @@ export default function Register({ setAuthenticated }) {
               color="secondary"
               variant="text"
               onClick={() => navigate("/login")}
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, width: "100%" }}
             >
               ¿Ya tienes cuenta? Inicia sesión
             </Button>
@@ -86,6 +139,12 @@ export default function Register({ setAuthenticated }) {
             autoHideDuration={4000}
             onClose={() => setError("")}
             message={error}
+          />
+          <Snackbar
+            open={!!successMsg}
+            autoHideDuration={6000}
+            onClose={() => setSuccessMsg("")}
+            message={successMsg}
           />
         </CardContent>
       </Card>
