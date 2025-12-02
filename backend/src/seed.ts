@@ -19,12 +19,15 @@ const seedData = async () => {
       await Usuario.create({
         nombre: "Administrador",
         email: adminEmail,
-        password: "admin123password", // El modelo lo hasheará
+        password: "admin", // El modelo lo hasheará
         rol: "admin",
       });
       console.log("👤 Usuario Admin creado");
     } else {
-      console.log("ℹ️ Usuario Admin ya existe");
+      // Actualizar contraseña si ya existe
+      adminExistente.password = "admin";
+      await adminExistente.save();
+      console.log("ℹ️ Usuario Admin actualizado con nueva contraseña");
     }
 
     // 2. Crear Programas

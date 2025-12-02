@@ -6,12 +6,16 @@ import {
   Card,
   CardContent,
   Snackbar,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export default function Login() {
   const {
@@ -20,6 +24,7 @@ export default function Login() {
     formState: { errors },
   } = useForm();
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -32,6 +37,12 @@ export default function Login() {
     } catch (err: any) {
       setError(err.response?.data?.mensaje || "Email o contraseña incorrectos");
     }
+  };
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
   };
 
   return (
@@ -58,11 +69,25 @@ export default function Login() {
             <TextField
               margin="normal"
               fullWidth
-              type="password"
+              type={showPassword ? "text" : "password"}
               label="Contraseña"
               {...register("password", { required: "Contraseña obligatoria" })}
               error={!!errors.password}
               helperText={errors.password?.message as string}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Entrar
