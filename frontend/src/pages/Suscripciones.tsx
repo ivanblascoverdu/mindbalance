@@ -20,16 +20,21 @@ import {
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import StarIcon from "@mui/icons-material/Star";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Suscripciones() {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [processing, setProcessing] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
 
+  const { usuario, setUsuario } = useAuth();
   const handlePayment = () => {
     setProcessing(true);
     setTimeout(() => {
         setProcessing(false);
+        if (usuario && selectedPlan) {
+            setUsuario({ ...usuario, suscripcion: selectedPlan.title.toLowerCase() });
+        }
         setSelectedPlan(null);
         setSnackOpen(true);
     }, 2000);

@@ -15,12 +15,12 @@ interface Activity {
 }
 
 const defaultActivities: Activity[] = [
-  { label: "Mindfulness matutino", current: 7, total: 7, color: "primary" },
-  { label: "Registro de emociones", current: 5, total: 7, color: "secondary" },
+  { label: "Mindfulness matutino", current: 20, total: 30, color: "primary" },
+  { label: "Registro de emociones", current: 15, total: 30, color: "secondary" },
   {
     label: "Ejercicios de respiración",
-    current: 4,
-    total: 7,
+    current: 10,
+    total: 30,
     color: "success",
   },
 ];
@@ -34,21 +34,21 @@ export default function WeeklyProgress({
 }) {
   const navigate = useNavigate();
   return (
-    <Card variant="outlined">
+    <Card variant="outlined" sx={{ height: "100%", minHeight: 400 }}>
       <CardContent>
-        <Typography variant="h6" fontWeight={700} gutterBottom>
-          Tu progreso esta semana
+        <Typography variant="h5" fontWeight={700} gutterBottom>
+          Tu progreso este mes
         </Typography>
-        <Typography color="text.secondary" mb={2}>
-          Has completado 3 de 5 actividades programadas
+        <Typography color="text.secondary" mb={4} fontSize={16}>
+          Has completado 45 de 90 actividades programadas
         </Typography>
         {activities.map((activity) => (
-          <Box key={activity.label} mb={2}>
+          <Box key={activity.label} mb={4}>
             <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography fontSize={16} fontWeight={500}>
+              <Typography fontSize={18} fontWeight={500}>
                 {activity.label}
               </Typography>
-              <Typography fontSize={14} color="text.secondary">
+              <Typography fontSize={16} color="text.secondary">
                 {activity.current}/{activity.total}
               </Typography>
             </Box>
@@ -57,7 +57,7 @@ export default function WeeklyProgress({
               value={(activity.current / activity.total) * 100}
               color={activity.color as any}
               sx={{
-                height: 8,
+                height: 15,
                 borderRadius: 8,
                 bgcolor: "action.hover",
               }}

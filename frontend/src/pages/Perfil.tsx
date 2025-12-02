@@ -10,11 +10,11 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, ContactShadows, Environment } from "@react-three/drei";
 
 export default function Perfil() {
@@ -26,8 +26,18 @@ export default function Perfil() {
 
   // 3D Avatar Component
   const Avatar3D = () => {
+    const groupRef = useRef<any>(null);
+
+    useFrame((state) => {
+      if (groupRef.current) {
+        // Idle animation
+        groupRef.current.position.y = -1 + Math.sin(state.clock.elapsedTime) * 0.05;
+        groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
+      }
+    });
+
     return (
-      <group position={[0, -1, 0]}>
+      <group ref={groupRef} position={[0, -1, 0]}>
         {/* Body/Shirt */}
         <mesh position={[0, 0.8, 0]} scale={[1.1, 1, 0.8]}>
             <capsuleGeometry args={[0.7, 1.2, 4, 8]} />
@@ -86,12 +96,6 @@ export default function Perfil() {
                 <torusGeometry args={[0.1, 0.02, 16, 32, 3.14]} />
                 <meshStandardMaterial color="#d68c7a" />
             </mesh>
-            {/* Rotate mouth to smile */}
-            <group position={[0, -0.2, 0.58]} rotation={[0, 0, 3.14]}>
-                 {/* This is a trick, actually torus is better rotated directly. 
-                     Let's just use a simple box for now or torus segment. 
-                     Torus args: radius, tube, radialSegments, tubularSegments, arc */}
-            </group>
 
             {/* Hair (Simplified "Helmet" + Volume) */}
             <group>
@@ -188,8 +192,8 @@ export default function Perfil() {
       {tabValue === 1 && (
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card variant="outlined" sx={{ height: "100%", minHeight: 400, bgcolor: "#f0f2f5", overflow: "hidden" }}>
-                <Box sx={{ width: "100%", height: "100%", minHeight: 400 }}>
+            <Card variant="outlined" sx={{ height: "100%", minHeight: 500, bgcolor: "#f0f2f5", overflow: "hidden" }}>
+                <Box sx={{ width: "100%", height: 500 }}>
                     <Canvas camera={{ position: [0, 1.5, 8], fov: 40 }}>
                         <Suspense fallback={null}>
                             <ambientLight intensity={0.7} />
@@ -221,6 +225,11 @@ export default function Perfil() {
                 <Typography variant="h6" fontWeight={700} gutterBottom>
                   Personaliza tu Avatar
                 </Typography>
+                
+                <Box mb={2} p={2} bgcolor="primary.light" borderRadius={2} color="primary.contrastText">
+                    <Typography variant="subtitle2" fontWeight="bold">Nivel {usuario?.nivel || 1}</Typography>
+                    <Typography variant="caption">Puntos: {usuario?.puntos || 0}</Typography>
+                </Box>
                 
                 <Box mb={3}>
                   <Typography gutterBottom>Color de Piel</Typography>
@@ -267,22 +276,37 @@ export default function Perfil() {
                 <Box mb={3}>
                   <Typography gutterBottom>Color de Ropa</Typography>
                   <Box display="flex" gap={1}>
-                    {["#2A9D8F", "#E76F51", "#264653", "#E9C46A", "#F4A261"].map(c => (
+                    {["#2A9D8F", "#E76F51", "#264653", "#E9C46A", "#F4A261"].map((c, index) => {
+                        const isLocked = (usuario?.nivel || 1) < 2 && index > 2; // Lock last 2 colors if level < 2
+                        return (
                         <Box 
                             key={c} 
-                            onClick={() => setShirtColor(c)}
+                            onClick={() => !isLocked && setShirtColor(c)}
                             sx={{ 
                                 width: 32, 
                                 height: 32, 
                                 bgcolor: c, 
                                 borderRadius: "50%", 
-                                cursor: "pointer",
+                                cursor: isLocked ? "not-allowed" : "pointer",
                                 border: shirtColor === c ? "2px solid black" : "none",
-                                boxShadow: 1
+                                boxShadow: 1,
+                                opacity: isLocked ? 0.3 : 1,
+                                position: "relative"
                             }} 
-                        />
-                    ))}
+                        >
+                            {isLocked && (
+                                <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <Typography variant="caption" sx={{ fontSize: 10 }}>🔒</Typography>
+                                </Box>
+                            )}
+                        </Box>
+                    )})}
                   </Box>
+                  {(usuario?.nivel || 1) < 2 && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                          Sube al nivel 2 para desbloquear más colores.
+                      </Typography>
+                  )}
                 </Box>
 
                 <Button variant="contained" fullWidth startIcon={<SaveIcon />}>

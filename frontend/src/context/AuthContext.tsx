@@ -6,6 +6,9 @@ interface Usuario {
   nombre: string;
   email: string;
   rol: string;
+  puntos: number;
+  nivel: number;
+  suscripcion?: string; // "free", "premium", "professional"
 }
 
 interface AuthContextType {
@@ -13,6 +16,7 @@ interface AuthContextType {
   loading: boolean;
   login: (token: string, usuario: Usuario) => void;
   logout: () => void;
+  setUsuario: React.Dispatch<React.SetStateAction<Usuario | null>>;
   isAuthenticated: boolean;
 }
 
@@ -59,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         login,
         logout,
+        setUsuario,
         isAuthenticated: !!usuario,
       }}
     >

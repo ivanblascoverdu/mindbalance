@@ -63,6 +63,8 @@ export const registrarUsuario = async (req: Request, res: Response) => {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
+        puntos: usuario.puntos,
+        nivel: usuario.nivel,
         token: generarToken(usuario._id as string),
       });
     } else {
@@ -102,6 +104,8 @@ export const loginUsuario = async (req: Request, res: Response) => {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
+        puntos: usuario.puntos,
+        nivel: usuario.nivel,
         token: generarToken(usuario._id as string),
       });
     } else {
@@ -126,6 +130,8 @@ export const obtenerPerfil = async (req: Request, res: Response) => {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
+        puntos: usuario.puntos,
+        nivel: usuario.nivel,
       });
     } else {
       res.status(404).json({ mensaje: "Usuario no encontrado" });

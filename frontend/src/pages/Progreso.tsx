@@ -34,10 +34,13 @@ interface Meta {
   completada: boolean;
 }
 
+import { useAuth } from "../context/AuthContext";
+
 export default function Progreso() {
+  const { usuario, setUsuario } = useAuth();
   const [metas, setMetas] = useState<Meta[]>([]);
   const [nuevaMeta, setNuevaMeta] = useState("");
-  const [xp, setXp] = useState(1250);
+  const xp = usuario?.puntos || 0;
   const [nivel] = useState(5);
   const [openCatalog, setOpenCatalog] = useState(false);
 
@@ -83,10 +86,13 @@ export default function Progreso() {
     try {
       await api.put(`/metas/${id}/toggle`);
       const meta = metas.find(m => m._id === id);
-      if (meta && !meta.completada) {
-          setXp(prev => prev + 50); // Ganar XP al completar
-      } else if (meta && meta.completada) {
-          setXp(prev => prev - 50); // Perder XP al descompletar
+      
+      if (usuario) {
+        if (meta && !meta.completada) {
+            setUsuario({ ...usuario, puntos: usuario.puntos + 50 });
+        } else if (meta && meta.completada) {
+            setUsuario({ ...usuario, puntos: Math.max(0, usuario.puntos - 50) });
+        }
       }
 
       setMetas(

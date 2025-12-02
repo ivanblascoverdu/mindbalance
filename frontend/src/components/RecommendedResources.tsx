@@ -11,6 +11,7 @@ import {
 import ArticleIcon from "@mui/icons-material/Article";
 import HeadphonesIcon from "@mui/icons-material/Headphones";
 import VideocamIcon from "@mui/icons-material/Videocam";
+import { Link } from "react-router-dom";
 
 const resources = [
   {
@@ -45,7 +46,13 @@ export default function RecommendedResources() {
             </ListItem>
           ))}
         </List>
-        <Button variant="contained" fullWidth sx={{ mt: 2 }}>
+        <Button 
+          variant="contained" 
+          fullWidth 
+          sx={{ mt: 2 }}
+          component={Link}
+          to="/biblioteca"
+        >
           Explorar biblioteca
         </Button>
       </CardContent>

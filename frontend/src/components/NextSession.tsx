@@ -24,6 +24,8 @@ export default function NextSession() {
           <Button
             variant="contained"
             sx={{ background: "#fff", color: "primary.main", fontWeight: 700 }}
+            href="https://meet.google.com/abc-defg-hij"
+            target="_blank"
           >
             Unirse a videollamada
           </Button>

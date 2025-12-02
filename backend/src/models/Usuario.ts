@@ -8,6 +8,8 @@ export interface IUsuario extends Document {
   rol: "usuario" | "profesional" | "admin";
   estado: "activo" | "inactivo" | "pendiente";
   fechaRegistro: Date;
+  puntos: number;
+  nivel: number;
   matchPassword(password: string): Promise<boolean>;
 }
 
@@ -44,6 +46,14 @@ const usuarioSchema = new Schema<IUsuario>({
   fechaRegistro: {
     type: Date,
     default: Date.now,
+  },
+  puntos: {
+    type: Number,
+    default: 0,
+  },
+  nivel: {
+    type: Number,
+    default: 1,
   },
 });
 

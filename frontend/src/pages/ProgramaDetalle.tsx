@@ -9,18 +9,31 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  LinearProgress,
   Snackbar,
   Alert,
+  TextField,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DescriptionIcon from "@mui/icons-material/Description";
 import HeadphonesIcon from "@mui/icons-material/Headphones";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import LockIcon from "@mui/icons-material/Lock";
+
+interface Sesion {
+  titulo: string;
+  descripcion: string;
+  videoUrl: string;
+  puntos: number;
+  duracion: string;
+}
 
 interface Programa {
   _id: string;
@@ -29,12 +42,14 @@ interface Programa {
   sesiones: number;
   sesionesCompletadas: number;
   color: string;
-  contenido: string[];
+  contenido: Sesion[];
+  isPremium?: boolean;
 }
 
 export default function ProgramaDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { usuario, setUsuario } = useAuth();
   const [programa, setPrograma] = useState<Programa | null>(null);
   const [activeSession, setActiveSession] = useState<number | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "info" });
@@ -53,7 +68,7 @@ export default function ProgramaDetalle() {
       } catch (error) {
         console.error("Error cargando programa, usando fallback:", error);
         // Fallback Mock Data
-        const mockProgramas = [
+        const mockProgramas: Programa[] = [
             {
               _id: "1",
               titulo: "Gestión de la Ansiedad",
@@ -61,7 +76,16 @@ export default function ProgramaDetalle() {
               sesiones: 8,
               sesionesCompletadas: 3,
               color: "primary",
-              contenido: ["Entendiendo la ansiedad", "Respiración diafragmática", "Identificando disparadores", "Reestructuración cognitiva", "Exposición gradual", "Mindfulness para ansiedad", "Prevención de recaídas", "Plan de acción personal"]
+              contenido: [
+                { titulo: "Entendiendo la ansiedad", descripcion: "Comprende los mecanismos biológicos y psicológicos de la ansiedad.", videoUrl: "inpok4MKVLM", puntos: 50, duracion: "10 min" },
+                { titulo: "Respiración diafragmática", descripcion: "Técnica fundamental para reducir la activación fisiológica.", videoUrl: "w7aIdbwX6Ts", puntos: 50, duracion: "15 min" },
+                { titulo: "Identificando disparadores", descripcion: "Aprende a reconocer qué situaciones detonan tu ansiedad.", videoUrl: "1ZYbU82GVz4", puntos: 60, duracion: "12 min" },
+                { titulo: "Reestructuración cognitiva", descripcion: "Cambia los pensamientos que alimentan la ansiedad.", videoUrl: "lFcSrYw-ARY", puntos: 70, duracion: "20 min" },
+                { titulo: "Exposición gradual", descripcion: "Enfrenta tus miedos paso a paso de forma segura.", videoUrl: "nmFUDkj1Aq0", puntos: 80, duracion: "18 min" },
+                { titulo: "Mindfulness para ansiedad", descripcion: "Atención plena para reducir el estrés.", videoUrl: "ZToicYcHIOU", puntos: 60, duracion: "15 min" },
+                { titulo: "Prevención de recaídas", descripcion: "Mantén tus logros a largo plazo.", videoUrl: "tEmt1Znux58", puntos: 90, duracion: "25 min" },
+                { titulo: "Plan de acción personal", descripcion: "Crea tu propia caja de herramientas anti-ansiedad.", videoUrl: "inpok4MKVLM", puntos: 100, duracion: "30 min" }
+              ]
             },
             {
               _id: "2",
@@ -70,25 +94,34 @@ export default function ProgramaDetalle() {
               sesiones: 5,
               sesionesCompletadas: 1,
               color: "secondary",
-              contenido: ["Qué es el Mindfulness", "Escaneo corporal", "Atención a la respiración", "Mindfulness en movimiento", "Integración diaria"]
-            },
-            {
-                _id: "3",
-                titulo: "Mejora tu Sueño",
-                descripcion: "Estrategias para establecer una rutina de sueño saludable.",
-                sesiones: 6,
-                sesionesCompletadas: 0,
-                color: "success",
-                contenido: ["Higiene del sueño", "Rutinas nocturnas", "Relajación muscular", "Diario de sueño", "Estímulos y ambiente", "Mantenimiento"]
+              contenido: [
+                { titulo: "Qué es el Mindfulness", descripcion: "Introducción a la práctica de la atención plena.", videoUrl: "lFcSrYw-ARY", puntos: 50, duracion: "10 min" },
+                { titulo: "Escaneo corporal", descripcion: "Conecta con las sensaciones de tu cuerpo.", videoUrl: "ZToicYcHIOU", puntos: 50, duracion: "15 min" },
+                { titulo: "Atención a la respiración", descripcion: "Usa tu respiración como ancla al presente.", videoUrl: "w7aIdbwX6Ts", puntos: 60, duracion: "12 min" },
+                { titulo: "Mindfulness en movimiento", descripcion: "Lleva la atención plena a tus actividades diarias.", videoUrl: "inpok4MKVLM", puntos: 70, duracion: "20 min" },
+                { titulo: "Integración diaria", descripcion: "Cómo mantener la práctica día a día.", videoUrl: "1ZYbU82GVz4", puntos: 80, duracion: "15 min" }
+              ]
             },
             {
                 _id: "4",
                 titulo: "Autoestima y Confianza",
-                descripcion: "Fortalece tu autoconcepto y seguridad personal.",
+                descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
                 sesiones: 10,
                 sesionesCompletadas: 0,
                 color: "warning",
-                contenido: ["Autoconocimiento", "Valores personales", "Diálogo interno", "Aceptación", "Límites saludables", "Asertividad", "Logros y fortalezas", "Autocuidado", "Proyección futura", "Celebración"]
+                isPremium: true,
+                contenido: [
+                    { titulo: "Autoconocimiento", descripcion: "Descubre quién eres realmente.", videoUrl: "tEmt1Znux58", puntos: 50, duracion: "15 min" },
+                    { titulo: "Valores personales", descripcion: "Identifica lo que es importante para ti.", videoUrl: "nmFUDkj1Aq0", puntos: 50, duracion: "15 min" },
+                    { titulo: "Diálogo interno", descripcion: "Mejora cómo te hablas a ti mismo.", videoUrl: "lFcSrYw-ARY", puntos: 60, duracion: "20 min" },
+                    { titulo: "Aceptación", descripcion: "Acéptate incondicionalmente.", videoUrl: "ZToicYcHIOU", puntos: 70, duracion: "18 min" },
+                    { titulo: "Límites saludables", descripcion: "Aprende a decir no.", videoUrl: "w7aIdbwX6Ts", puntos: 80, duracion: "25 min" },
+                    { titulo: "Asertividad", descripcion: "Comunícate con confianza.", videoUrl: "inpok4MKVLM", puntos: 80, duracion: "20 min" },
+                    { titulo: "Logros y fortalezas", descripcion: "Reconoce tus éxitos.", videoUrl: "1ZYbU82GVz4", puntos: 90, duracion: "15 min" },
+                    { titulo: "Autocuidado", descripcion: "Cuida de ti mismo.", videoUrl: "lFcSrYw-ARY", puntos: 90, duracion: "20 min" },
+                    { titulo: "Proyección futura", descripcion: "Visualiza tu mejor versión.", videoUrl: "nmFUDkj1Aq0", puntos: 100, duracion: "25 min" },
+                    { titulo: "Celebración", descripcion: "Celebra tu camino.", videoUrl: "tEmt1Znux58", puntos: 100, duracion: "30 min" }
+                ]
             }
         ];
         const foundMock = mockProgramas.find(p => p._id === id);
@@ -99,15 +132,21 @@ export default function ProgramaDetalle() {
   }, [id]);
 
   const handleCompleteSession = () => {
-    if (!programa) return;
+    if (!programa || activeSession === null) return;
     
     // Simulate update
     const newCompleted = Math.min(programa.sesionesCompletadas + 1, programa.sesiones);
     setPrograma({ ...programa, sesionesCompletadas: newCompleted });
     
+    // Award points
+    const sessionPoints = programa.contenido[activeSession].puntos;
+    if (usuario) {
+        setUsuario({ ...usuario, puntos: usuario.puntos + sessionPoints });
+    }
+
     setSnackbar({
         open: true,
-        message: `¡Sesión completada! Has avanzado al ${(newCompleted / programa.sesiones * 100).toFixed(0)}%`,
+        message: `¡Sesión completada! Has ganado ${sessionPoints} puntos. Progreso: ${(newCompleted / programa.sesiones * 100).toFixed(0)}%`,
         severity: "success"
     });
     setActiveSession(null);
@@ -147,9 +186,14 @@ export default function ProgramaDetalle() {
 
       <Card variant="outlined" sx={{ mb: 4, borderColor: `${programa.color}.main`, borderWidth: 1 }}>
         <CardContent>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
-            {programa.titulo}
-          </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4" fontWeight={700} gutterBottom>
+                {programa.titulo}
+            </Typography>
+            {programa.isPremium && (
+                <Chip label="PREMIUM" color="warning" sx={{ fontWeight: 'bold' }} />
+            )}
+          </Box>
           <Typography color="text.secondary" paragraph>
             {programa.descripcion}
           </Typography>
@@ -180,8 +224,10 @@ export default function ProgramaDetalle() {
                   variant={activeSession === index ? "contained" : "outlined"}
                   color={index < programa.sesionesCompletadas ? "success" : "primary"}
                   onClick={() => setActiveSession(activeSession === index ? null : index)}
+                  disabled={index > programa.sesionesCompletadas}
+                  startIcon={index > programa.sesionesCompletadas ? <LockIcon /> : null}
                 >
-                  {activeSession === index ? "Cerrar" : index < programa.sesionesCompletadas ? "Repasar" : "Comenzar"}
+                  {activeSession === index ? "Cerrar" : index < programa.sesionesCompletadas ? "Repasar" : index === programa.sesionesCompletadas ? "Comenzar" : "Bloqueado"}
                 </Button>
               }
             >
@@ -193,11 +239,15 @@ export default function ProgramaDetalle() {
                 )}
               </ListItemIcon>
               <ListItemText
-                primary={<Typography fontWeight={600}>{`Sesión ${index + 1}: ${sesion}`}</Typography>}
+                primary={<Typography fontWeight={600}>{`Sesión ${index + 1}: ${sesion.titulo}`}</Typography>}
                 secondary={
-                  index < programa.sesionesCompletadas
-                    ? "Completado"
-                    : index === programa.sesionesCompletadas ? "Disponible" : "Bloqueado"
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">{sesion.descripcion}</Typography>
+                    <Box display="flex" gap={1} mt={0.5}>
+                        <Chip label={`${sesion.puntos} pts`} size="small" color="primary" variant="outlined" />
+                        <Chip label={sesion.duracion} size="small" variant="outlined" />
+                    </Box>
+                  </Box>
                 }
               />
             </ListItem>
@@ -208,7 +258,7 @@ export default function ProgramaDetalle() {
                   Contenido de la sesión
                 </Typography>
                 <Typography paragraph>
-                  Bienvenido a la sesión de <strong>{sesion}</strong>. 
+                  Bienvenido a la sesión de <strong>{sesion.titulo}</strong>. 
                   En este módulo trabajaremos conceptos clave para tu desarrollo personal.
                 </Typography>
                 
@@ -221,15 +271,17 @@ export default function ProgramaDetalle() {
                         alignItems="center"
                         justifyContent="center"
                         borderRadius={2}
-                        color="white"
-                        position="relative"
-                        sx={{ cursor: "pointer", "&:hover": { opacity: 0.9 } }}
-                        onClick={() => alert("Reproduciendo video... (Simulación)")}
+                        overflow="hidden"
                         >
-                        <PlayCircleOutlineIcon sx={{ fontSize: 64, opacity: 0.8 }} />
-                        <Typography sx={{ position: "absolute", bottom: 16, left: 16 }}>
-                            Video Introductorio: {sesion}
-                        </Typography>
+                          <iframe 
+                            width="100%" 
+                            height="100%" 
+                            src={`https://www.youtube.com/embed/${sesion.videoUrl}`}
+                            title="YouTube video player" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          ></iframe>
                         </Box>
                     </Grid>
                     <Grid size={{ xs: 12, md: 4 }}>
@@ -294,7 +346,7 @@ export default function ProgramaDetalle() {
                         onClick={handleCompleteSession}
                         disabled={index < programa.sesionesCompletadas}
                     >
-                        {index < programa.sesionesCompletadas ? "Sesión ya completada" : "Marcar Sesión como Completada"}
+                        {index < programa.sesionesCompletadas ? "Sesión ya completada" : `Completar y ganar ${sesion.puntos} pts`}
                     </Button>
                 </Box>
               </Box>

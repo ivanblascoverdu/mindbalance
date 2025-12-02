@@ -32,18 +32,18 @@ export default function Dashboard() {
           <Grid size={{ xs: 12 }}>
             <QuickAccessCards />
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>
+          <Grid size={{ xs: 12 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
-                height={300}
+                height={400}
                 sx={{ borderRadius: 2 }}
               />
             ) : (
               <WeeklyProgress />
             )}
           </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
@@ -54,7 +54,7 @@ export default function Dashboard() {
               <RecommendedResources />
             )}
           </Grid>
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
@@ -65,7 +65,7 @@ export default function Dashboard() {
               <NextSession />
             )}
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"

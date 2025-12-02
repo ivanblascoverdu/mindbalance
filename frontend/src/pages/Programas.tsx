@@ -8,12 +8,14 @@ import {
   LinearProgress,
   Skeleton,
   IconButton,
+  Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LockIcon from "@mui/icons-material/Lock";
 import { useNavigate } from "react-router-dom";
 
 interface Programa {
@@ -23,6 +25,7 @@ interface Programa {
   sesiones: number;
   sesionesCompletadas: number;
   color: any;
+  isPremium?: boolean;
 }
 
 export default function Programas() {
@@ -31,6 +34,12 @@ export default function Programas() {
   const { usuario } = useAuth();
   const isAdmin = usuario?.rol === "admin";
   const navigate = useNavigate();
+
+  const hasAccess = (programa: Programa) => {
+    if (isAdmin) return true;
+    if (!programa.isPremium) return true;
+    return usuario?.suscripcion === "premium" || usuario?.suscripcion === "profesional";
+  };
 
   useEffect(() => {
     const fetchProgramas = async () => {
@@ -68,10 +77,11 @@ export default function Programas() {
             {
               _id: "4",
               titulo: "Autoestima y Confianza",
-              descripcion: "Fortalece tu autoconcepto y seguridad personal.",
+              descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
               sesiones: 10,
               sesionesCompletadas: 0,
               color: "warning",
+              isPremium: true,
             },
           ]);
         }
@@ -94,6 +104,15 @@ export default function Programas() {
               sesiones: 5,
               sesionesCompletadas: 1,
               color: "secondary",
+            },
+            {
+                _id: "4",
+                titulo: "Autoestima y Confianza",
+                descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
+                sesiones: 10,
+                sesionesCompletadas: 0,
+                color: "warning",
+                isPremium: true,
             },
         ]);
       } finally {
@@ -133,12 +152,22 @@ export default function Programas() {
                 />
               </Grid>
             ))
-          : programas.map((p) => (
+          : programas.map((p) => {
+              const accessible = hasAccess(p);
+              return (
               <Grid size={{ xs: 12, md: 6, lg: 3 }} key={p._id}>
-                <Card variant="outlined">
+                <Card variant="outlined" sx={{ position: 'relative', opacity: accessible ? 1 : 0.8 }}>
+                  {p.isPremium && (
+                    <Chip 
+                        label="PREMIUM" 
+                        color="warning" 
+                        size="small" 
+                        sx={{ position: 'absolute', top: 10, right: 10, fontWeight: 'bold' }} 
+                    />
+                  )}
                   <CardContent>
                     <Box display="flex" justifyContent="space-between" alignItems="start">
-                      <Typography fontWeight={700}>{p.titulo}</Typography>
+                      <Typography fontWeight={700} sx={{ pr: 4 }}>{p.titulo}</Typography>
                       {isAdmin && (
                         <Box>
                           <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
@@ -169,12 +198,14 @@ export default function Programas() {
                         <Button
                           variant="contained"
                           fullWidth
-                          color={p.color || "primary"}
-                          onClick={() => navigate(`/programas/${p._id}`)}
+                          color={accessible ? (p.color || "primary") : "inherit"}
+                          startIcon={!accessible ? <LockIcon /> : null}
+                          onClick={() => accessible ? navigate(`/programas/${p._id}`) : navigate('/suscripciones')}
                         >
-                          {p.sesionesCompletadas === 0
-                            ? "Comenzar programa"
-                            : "Continuar programa"}
+                          {accessible 
+                            ? (p.sesionesCompletadas === 0 ? "Comenzar programa" : "Continuar programa")
+                            : "Desbloquear con Premium"
+                          }
                         </Button>
                       </>
                     )}
@@ -187,7 +218,7 @@ export default function Programas() {
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
+            )})}
       </Grid>
     </Box>
   );
