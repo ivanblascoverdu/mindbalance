@@ -4,7 +4,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Divider,
   Typography,
   Box,
@@ -18,7 +17,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import SettingsIcon from "@mui/icons-material/Settings";
-import EditIcon from "@mui/icons-material/Edit";
+import StarIcon from "@mui/icons-material/Star";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -52,6 +51,7 @@ export default function Sidebar() {
     { text: "Comunidad", icon: <GroupsIcon />, to: "/comunidad" },
     { text: "Sesiones", icon: <DateRangeIcon />, to: "/sesiones" },
     { text: "Progreso", icon: <BarChartIcon />, to: "/progreso" },
+    { text: "Suscripciones", icon: <StarIcon />, to: "/suscripciones" },
   ];
 
   const professionalItems = [
@@ -93,12 +93,12 @@ export default function Sidebar() {
           boxSizing: "border-box",
           background: "#fff",
           borderRight: "1px solid #eef2f6",
+          top: 64, // Push sidebar down by TopBar height
+          height: "calc(100% - 64px)", // Adjust height
         },
       }}
     >
-      <Toolbar>
-        <span style={{ fontWeight: 700, fontSize: 22, color: "#1976d2" }}>MindBalance</span>
-      </Toolbar>
+
       
       {/* CLIENT MENU */}
       {usuario?.rol === "usuario" && (
@@ -109,9 +109,23 @@ export default function Sidebar() {
               to={to}
               key={text}
               selected={location.pathname === to}
+              sx={{
+                borderRadius: "0 24px 24px 0",
+                mr: 2,
+                "&.Mui-selected": {
+                  bgcolor: "primary.light",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "primary.main",
+                  },
+                  "& .MuiListItemIcon-root": {
+                    color: "white",
+                  },
+                },
+              }}
             >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
+              <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
           ))}
         </List>
@@ -126,9 +140,23 @@ export default function Sidebar() {
               to={to}
               key={text}
               selected={location.pathname === to}
+              sx={{
+                borderRadius: "0 24px 24px 0",
+                mr: 2,
+                "&.Mui-selected": {
+                  bgcolor: "primary.light",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "primary.main",
+                  },
+                  "& .MuiListItemIcon-root": {
+                    color: "white",
+                  },
+                },
+              }}
             >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
+              <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
           ))}
         </List>
@@ -144,9 +172,23 @@ export default function Sidebar() {
                 to={to}
                 key={text}
                 selected={location.pathname === to}
+                sx={{
+                  borderRadius: "0 24px 24px 0",
+                  mr: 2,
+                  "&.Mui-selected": {
+                    bgcolor: "primary.light",
+                    color: "white",
+                    "&:hover": {
+                      bgcolor: "primary.main",
+                    },
+                    "& .MuiListItemIcon-root": {
+                      color: "white",
+                    },
+                  },
+                }}
               >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
+                <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
               </ListItemButton>
             ))}
           </List>
@@ -163,9 +205,23 @@ export default function Sidebar() {
                 to={to}
                 key={text}
                 selected={location.pathname === to}
+                sx={{
+                  borderRadius: "0 24px 24px 0",
+                  mr: 2,
+                  "&.Mui-selected": {
+                    bgcolor: "primary.light",
+                    color: "white",
+                    "&:hover": {
+                      bgcolor: "primary.main",
+                    },
+                    "& .MuiListItemIcon-root": {
+                      color: "white",
+                    },
+                  },
+                }}
               >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
+                <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
               </ListItemButton>
             ))}
           </List>

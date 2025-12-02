@@ -26,3 +26,10 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+node_modules/
+.env/
+dist/
+*.log
+*.zip
+.DS_Store

@@ -46,9 +46,71 @@ export default function Biblioteca() {
     const fetchRecursos = async () => {
       try {
         const { data } = await api.get("/recursos");
-        setRecursos(data);
+        if (data && data.length > 0) {
+          setRecursos(data);
+        } else {
+          setRecursos([
+            {
+              _id: "1",
+              titulo: "Técnicas de Respiración Profunda",
+              descripcion: "Guía paso a paso para calmar la mente en situaciones de estrés.",
+              tipo: "articulo",
+              url: "https://example.com/respiracion",
+              categoria: "Ansiedad",
+              tags: ["respiración", "estrés"],
+            },
+            {
+              _id: "2",
+              titulo: "Meditación Guiada para Dormir",
+              descripcion: "Audio de 15 minutos para ayudarte a conciliar el sueño.",
+              tipo: "audio",
+              url: "https://example.com/audio.mp3",
+              categoria: "Sueño",
+              tags: ["meditación", "insomnio"],
+            },
+            {
+              _id: "3",
+              titulo: "Entendiendo tus Emociones",
+              descripcion: "Video explicativo sobre cómo identificar y procesar emociones.",
+              tipo: "video",
+              url: "https://example.com/video",
+              categoria: "Inteligencia Emocional",
+              tags: ["emociones", "psicología"],
+            },
+            {
+              _id: "4",
+              titulo: "Beneficios del Ejercicio en la Salud Mental",
+              descripcion: "Artículo sobre la conexión mente-cuerpo.",
+              tipo: "articulo",
+              url: "https://example.com/ejercicio",
+              categoria: "Bienestar",
+              tags: ["salud", "ejercicio"],
+            },
+            {
+              _id: "5",
+              titulo: "Podcast: Historias de Superación",
+              descripcion: "Entrevistas inspiradoras.",
+              tipo: "audio",
+              url: "https://example.com/podcast",
+              categoria: "Motivación",
+              tags: ["historias", "motivación"],
+            },
+          ]);
+        }
       } catch (error) {
         console.error("Error cargando recursos:", error);
+        // Fallback
+        setRecursos([
+            {
+              _id: "1",
+              titulo: "Técnicas de Respiración Profunda",
+              descripcion: "Guía paso a paso para calmar la mente en situaciones de estrés.",
+              tipo: "articulo",
+              url: "https://example.com/respiracion",
+              categoria: "Ansiedad",
+              tags: ["respiración", "estrés"],
+            },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -73,11 +135,7 @@ export default function Biblioteca() {
   };
 
   const handleOpenRecurso = (r: Recurso) => {
-    if (isAdmin) {
-      window.open(r.url, "_blank");
-    } else {
-      setSelectedRecurso(r);
-    }
+    setSelectedRecurso(r);
   };
 
   const handleClose = () => {
@@ -102,7 +160,7 @@ export default function Biblioteca() {
         )}
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3, width: "100%" }}>
         <Tabs
           value={filtroTipo}
           onChange={(_, newValue) => setFiltroTipo(newValue)}
@@ -114,7 +172,7 @@ export default function Biblioteca() {
         </Tabs>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ width: "100%" }}>
         {loading
           ? [1, 2, 3, 4, 5, 6].map((n) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={n}>

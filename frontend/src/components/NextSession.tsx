@@ -4,7 +4,7 @@ export default function NextSession() {
   return (
     <Card
       sx={{
-        background: "linear-gradient(90deg, #14c3da 0%, #1479fb 100%)",
+        background: "linear-gradient(90deg, #2A9D8F 0%, #26A69A 100%)",
         color: "#fff",
         boxShadow: 3,
         mt: 3,
@@ -23,7 +23,7 @@ export default function NextSession() {
         <Box sx={{ mt: 3 }}>
           <Button
             variant="contained"
-            sx={{ background: "#fff", color: "#1479fb", fontWeight: 700 }}
+            sx={{ background: "#fff", color: "primary.main", fontWeight: 700 }}
           >
             Unirse a videollamada
           </Button>

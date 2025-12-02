@@ -36,9 +36,66 @@ export default function Programas() {
     const fetchProgramas = async () => {
       try {
         const { data } = await api.get("/programas");
-        setProgramas(data);
+        if (data && data.length > 0) {
+          setProgramas(data);
+        } else {
+          // Mock data for demonstration
+          setProgramas([
+            {
+              _id: "1",
+              titulo: "Gestión de la Ansiedad",
+              descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
+              sesiones: 8,
+              sesionesCompletadas: 3,
+              color: "primary",
+            },
+            {
+              _id: "2",
+              titulo: "Mindfulness Básico",
+              descripcion: "Introducción a la atención plena para reducir el estrés.",
+              sesiones: 5,
+              sesionesCompletadas: 1,
+              color: "secondary",
+            },
+            {
+              _id: "3",
+              titulo: "Mejora tu Sueño",
+              descripcion: "Estrategias para establecer una rutina de sueño saludable.",
+              sesiones: 6,
+              sesionesCompletadas: 0,
+              color: "success",
+            },
+            {
+              _id: "4",
+              titulo: "Autoestima y Confianza",
+              descripcion: "Fortalece tu autoconcepto y seguridad personal.",
+              sesiones: 10,
+              sesionesCompletadas: 0,
+              color: "warning",
+            },
+          ]);
+        }
       } catch (error) {
         console.error("Error cargando programas:", error);
+        // Fallback mock data on error
+        setProgramas([
+            {
+              _id: "1",
+              titulo: "Gestión de la Ansiedad",
+              descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
+              sesiones: 8,
+              sesionesCompletadas: 3,
+              color: "primary",
+            },
+            {
+              _id: "2",
+              titulo: "Mindfulness Básico",
+              descripcion: "Introducción a la atención plena para reducir el estrés.",
+              sesiones: 5,
+              sesionesCompletadas: 1,
+              color: "secondary",
+            },
+        ]);
       } finally {
         setLoading(false);
       }

@@ -15,21 +15,24 @@ interface Activity {
 }
 
 const defaultActivities: Activity[] = [
-  { label: "Mindfulness matutino", current: 7, total: 7, color: "#1479fb" },
-  { label: "Registro de emociones", current: 5, total: 7, color: "#14c3da" },
+  { label: "Mindfulness matutino", current: 7, total: 7, color: "primary" },
+  { label: "Registro de emociones", current: 5, total: 7, color: "secondary" },
   {
     label: "Ejercicios de respiración",
     current: 4,
     total: 7,
-    color: "#43dfaf",
+    color: "success",
   },
 ];
+
+import { useNavigate } from "react-router-dom";
 
 export default function WeeklyProgress({
   activities = defaultActivities,
 }: {
   activities?: Activity[];
 }) {
+  const navigate = useNavigate();
   return (
     <Card variant="outlined">
       <CardContent>
@@ -52,17 +55,17 @@ export default function WeeklyProgress({
             <LinearProgress
               variant="determinate"
               value={(activity.current / activity.total) * 100}
+              color={activity.color as any}
               sx={{
                 height: 8,
                 borderRadius: 8,
-                background: "#eef4fb",
-                "& .MuiLinearProgress-bar": { backgroundColor: activity.color },
+                bgcolor: "action.hover",
               }}
             />
           </Box>
         ))}
         <Box textAlign="center" mt={2}>
-          <Button variant="text">Ver progreso detallado</Button>
+          <Button variant="text" onClick={() => navigate("/progreso")}>Ver progreso detallado</Button>
         </Box>
       </CardContent>
     </Card>

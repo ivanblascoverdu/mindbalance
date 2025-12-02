@@ -1,5 +1,5 @@
 // frontend/src/components/ProgressChart.tsx
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -36,7 +36,7 @@ const data = {
       label: "Bienestar",
       data: [3, 4, 5, 4, 5, 4, 5], // debes cargar estos datos dinámicamente
       fill: false,
-      borderColor: "#3f51b5",
+      borderColor: "#2A9D8F",
       tension: 0.15,
     },
   ],
@@ -50,7 +50,9 @@ const options = {
 export default function ProgressChart() {
   return (
     <Box sx={{ background: "white", borderRadius: 2, boxShadow: 1, p: 2 }}>
-      <h2>Progreso semanal</h2>
+      <Typography variant="h6" fontWeight={700} gutterBottom>
+        Progreso semanal
+      </Typography>
       <Line data={data} options={options} />
     </Box>
   );

@@ -29,10 +29,10 @@ export default function Dashboard() {
           Hoy es un buen día para cuidar de ti mismo
         </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <QuickAccessCards />
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
@@ -43,7 +43,7 @@ export default function Dashboard() {
               <WeeklyProgress />
             )}
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
@@ -54,7 +54,7 @@ export default function Dashboard() {
               <RecommendedResources />
             )}
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"
@@ -65,7 +65,7 @@ export default function Dashboard() {
               <NextSession />
             )}
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             {loading ? (
               <Skeleton
                 variant="rectangular"

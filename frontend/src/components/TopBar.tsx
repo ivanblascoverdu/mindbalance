@@ -33,12 +33,20 @@ export default function TopBar() {
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       color="inherit"
       elevation={0}
-      sx={{ borderBottom: "1px solid #e5eeff", bgcolor: "#fff" }}
+      sx={{ 
+        borderBottom: "1px solid rgba(0,0,0,0.05)", 
+        bgcolor: "#fff",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        width: "100%"
+      }}
     >
-      <Toolbar sx={{ justifyContent: "flex-end", minHeight: 64 }}>
+      <Toolbar sx={{ minHeight: 64 }}>
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: "primary.main", letterSpacing: "-0.5px", fontSize: 24 }}>
+          MindBalance
+        </Typography>
         <Box flexGrow={1}></Box>
         <Typography variant="body1" sx={{ mr: 2, fontWeight: 500 }}>
           Hola, {usuario?.nombre || "Usuario"}
@@ -54,7 +62,7 @@ export default function TopBar() {
           <MenuItem onClick={() => { handleCloseMenu(); navigate("/configuracion"); }}>
             <SettingsIcon fontSize="small" sx={{ mr: 1 }} /> Configuración
           </MenuItem>
-          <MenuItem onClick={handleCloseMenu}>Perfil</MenuItem>
+          <MenuItem onClick={() => { handleCloseMenu(); navigate("/perfil"); }}>Perfil</MenuItem>
           <MenuItem onClick={handleLogout} sx={{ color: "red" }}>
             Cerrar sesión
           </MenuItem>

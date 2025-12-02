@@ -25,6 +25,8 @@ import Agenda from "./pages/profesional/Agenda";
 import Usuarios from "./pages/admin/Usuarios";
 import Configuracion from "./pages/Configuracion";
 import ProgramaDetalle from "./pages/ProgramaDetalle";
+import Suscripciones from "./pages/Suscripciones";
+import Perfil from "./pages/Perfil";
 
 function AppContent() {
   const { isAuthenticated, loading } = useAuth();
@@ -60,9 +62,10 @@ function AppContent() {
             flexGrow: 1,
             padding: "2rem",
             minHeight: "100vh",
-            background: "#f7fafd",
+            width: "100%",
           }}
         >
+          {!hideNav && <Box sx={{ height: 64 }} />}
           <Routes>
             <Route
               path="/login"
@@ -173,6 +176,22 @@ function AppContent() {
               element={
                 <ProtectedRoute authenticated={isAuthenticated}>
                   <Configuracion />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/suscripciones"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Suscripciones />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/perfil"
+              element={
+                <ProtectedRoute authenticated={isAuthenticated}>
+                  <Perfil />
                 </ProtectedRoute>
               }
             />
