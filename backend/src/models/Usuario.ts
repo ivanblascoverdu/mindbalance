@@ -10,6 +10,7 @@ export interface IUsuario extends Document {
   fechaRegistro: Date;
   puntos: number;
   nivel: number;
+  suscripcion: string;
   matchPassword(password: string): Promise<boolean>;
 }
 
@@ -54,6 +55,11 @@ const usuarioSchema = new Schema<IUsuario>({
   nivel: {
     type: Number,
     default: 1,
+  },
+  suscripcion: {
+    type: String,
+    enum: ["free", "premium", "profesional"],
+    default: "free",
   },
 });
 

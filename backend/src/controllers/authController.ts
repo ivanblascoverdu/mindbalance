@@ -65,6 +65,7 @@ export const registrarUsuario = async (req: Request, res: Response) => {
         rol: usuario.rol,
         puntos: usuario.puntos,
         nivel: usuario.nivel,
+        suscripcion: usuario.suscripcion,
         token: generarToken(usuario._id as string),
       });
     } else {
@@ -106,6 +107,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
         rol: usuario.rol,
         puntos: usuario.puntos,
         nivel: usuario.nivel,
+        suscripcion: usuario.suscripcion,
         token: generarToken(usuario._id as string),
       });
     } else {
@@ -126,12 +128,15 @@ export const obtenerPerfil = async (req: Request, res: Response) => {
 
     if (usuario) {
       res.json({
-        _id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
-        puntos: usuario.puntos,
-        nivel: usuario.nivel,
+        usuario: {
+            _id: usuario._id,
+            nombre: usuario.nombre,
+            email: usuario.email,
+            rol: usuario.rol,
+            puntos: usuario.puntos,
+            nivel: usuario.nivel,
+            suscripcion: usuario.suscripcion,
+        }
       });
     } else {
       res.status(404).json({ mensaje: "Usuario no encontrado" });
@@ -141,3 +146,44 @@ export const obtenerPerfil = async (req: Request, res: Response) => {
     res.status(500).json({ mensaje: "Error en el servidor" });
   }
 };
+
+// @desc    Actualizar perfil del usuario
+// @route   PUT /api/auth/me
+// @access  Private
+export const actualizarPerfil = async (req: Request, res: Response) => {
+    try {
+      const usuario = await Usuario.findById((req as any).usuarioId);
+  
+      if (usuario) {
+        usuario.nombre = req.body.nombre || usuario.nombre;
+        usuario.email = req.body.email || usuario.email;
+        if (req.body.password) {
+          usuario.password = req.body.password;
+        }
+        if (req.body.suscripcion) {
+            usuario.suscripcion = req.body.suscripcion;
+        }
+        if (req.body.puntos !== undefined) {
+            usuario.puntos = req.body.puntos;
+        }
+  
+        const usuarioActualizado = await usuario.save();
+  
+        res.json({
+          _id: usuarioActualizado._id,
+          nombre: usuarioActualizado.nombre,
+          email: usuarioActualizado.email,
+          rol: usuarioActualizado.rol,
+          puntos: usuarioActualizado.puntos,
+          nivel: usuarioActualizado.nivel,
+          suscripcion: usuarioActualizado.suscripcion,
+          token: generarToken(usuarioActualizado._id as string),
+        });
+      } else {
+        res.status(404).json({ mensaje: "Usuario no encontrado" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ mensaje: "Error en el servidor" });
+    }
+  };

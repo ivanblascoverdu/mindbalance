@@ -21,6 +21,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import StarIcon from "@mui/icons-material/Star";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 export default function Suscripciones() {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -28,16 +29,37 @@ export default function Suscripciones() {
   const [snackOpen, setSnackOpen] = useState(false);
 
   const { usuario, setUsuario } = useAuth();
-  const handlePayment = () => {
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvc, setCvc] = useState("");
+
+  const handlePayment = async () => {
     setProcessing(true);
-    setTimeout(() => {
-        setProcessing(false);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
         if (usuario && selectedPlan) {
-            setUsuario({ ...usuario, suscripcion: selectedPlan.title.toLowerCase() });
+            const newSubscription = selectedPlan.title.toLowerCase();
+            // Update backend
+            await api.put("/auth/me", { suscripcion: newSubscription });
+            
+            // Update local context
+            setUsuario({ ...usuario, suscripcion: newSubscription });
+            
+            setSnackOpen(true);
+            setSelectedPlan(null);
+            // Reset form
+            setCardNumber("");
+            setExpiry("");
+            setCvc("");
         }
-        setSelectedPlan(null);
-        setSnackOpen(true);
-    }, 2000);
+    } catch (error) {
+        console.error("Error updating subscription:", error);
+    } finally {
+        setProcessing(false);
+    }
   };
 
   const plans = [
@@ -217,10 +239,44 @@ export default function Suscripciones() {
             </Typography>
             <Box component="form" sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
                 <TextField label="Nombre en la tarjeta" fullWidth />
-                <TextField label="Número de tarjeta" fullWidth placeholder="0000 0000 0000 0000" />
+                <TextField 
+                    label="Número de tarjeta" 
+                    fullWidth 
+                    placeholder="0000 0000 0000 0000" 
+                    value={cardNumber}
+                    onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').substring(0, 16);
+                        setCardNumber(val);
+                    }}
+                    error={cardNumber.length > 0 && cardNumber.length < 16}
+                    helperText={cardNumber.length > 0 && cardNumber.length < 16 ? "Debe tener 16 dígitos" : ""}
+                />
                 <Box display="flex" gap={2}>
-                    <TextField label="Fecha de expiración" placeholder="MM/YY" fullWidth />
-                    <TextField label="CVC" placeholder="123" fullWidth />
+                    <TextField 
+                        label="Fecha de expiración" 
+                        placeholder="MM/YY" 
+                        fullWidth 
+                        value={expiry}
+                        onChange={(e) => {
+                            let val = e.target.value.replace(/\D/g, '');
+                            if (val.length >= 2) {
+                                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                            }
+                            setExpiry(val);
+                        }}
+                        inputProps={{ maxLength: 5 }}
+                    />
+                    <TextField 
+                        label="CVC" 
+                        placeholder="123" 
+                        fullWidth 
+                        value={cvc}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').substring(0, 3);
+                            setCvc(val);
+                        }}
+                        inputProps={{ maxLength: 3 }}
+                    />
                 </Box>
             </Box>
             <Box mt={3} p={2} bgcolor="#f5f5f5" borderRadius={1}>
@@ -236,7 +292,11 @@ export default function Suscripciones() {
         </DialogContent>
         <DialogActions>
             <Button onClick={() => setSelectedPlan(null)}>Cancelar</Button>
-            <Button variant="contained" onClick={handlePayment} disabled={processing}>
+            <Button 
+                variant="contained" 
+                onClick={handlePayment} 
+                disabled={processing || cardNumber.length !== 16 || expiry.length !== 5 || cvc.length !== 3}
+            >
                 {processing ? "Procesando..." : "Pagar y Suscribirse"}
             </Button>
         </DialogActions>

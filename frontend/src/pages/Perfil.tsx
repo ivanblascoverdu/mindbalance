@@ -17,12 +17,27 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, ContactShadows, Environment } from "@react-three/drei";
 
+import api from "../services/api";
+
 export default function Perfil() {
-  const { usuario } = useAuth();
+  const { usuario, setUsuario } = useAuth();
   const [tabValue, setTabValue] = useState(0);
   const [skinColor, setSkinColor] = useState<string>("#ffcc99");
   const [hairColor, setHairColor] = useState<string>("#4a3b2a");
   const [shirtColor, setShirtColor] = useState<string>("#2A9D8F");
+
+  const handleCancelSubscription = async () => {
+    if (window.confirm("¿Estás seguro de que quieres cancelar tu suscripción? Perderás acceso al contenido premium.")) {
+        try {
+            await api.put("/auth/me", { suscripcion: "free" });
+            if (usuario) {
+                setUsuario({ ...usuario, suscripcion: "free" });
+            }
+        } catch (error) {
+            console.error("Error cancelling subscription:", error);
+        }
+    }
+  };
 
   // 3D Avatar Component
   const Avatar3D = () => {
@@ -162,7 +177,7 @@ export default function Perfil() {
             </Card>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Card variant="outlined">
+            <Card variant="outlined" sx={{ mb: 3 }}>
               <CardContent>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
                   Información de la Cuenta
@@ -184,6 +199,33 @@ export default function Perfil() {
                   </Button>
                 </Box>
               </CardContent>
+            </Card>
+
+            <Card variant="outlined">
+                <CardContent>
+                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                        Gestión de Suscripción
+                    </Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Box>
+                            <Typography variant="subtitle1">Plan Actual: <strong>{(usuario?.suscripcion || "free").toUpperCase()}</strong></Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {usuario?.suscripcion && usuario.suscripcion !== "free" 
+                                    ? "Disfrutas de todos los beneficios premium." 
+                                    : "Estás en el plan básico gratuito."}
+                            </Typography>
+                        </Box>
+                        {usuario?.suscripcion && usuario.suscripcion !== "free" && (
+                            <Button 
+                                variant="outlined" 
+                                color="error" 
+                                onClick={handleCancelSubscription}
+                            >
+                                Cancelar Suscripción
+                            </Button>
+                        )}
+                    </Box>
+                </CardContent>
             </Card>
           </Grid>
         </Grid>
