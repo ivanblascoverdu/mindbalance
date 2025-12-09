@@ -9,6 +9,7 @@ import postRoutes from "./routes/post.js";
 import citaRoutes from "./routes/cita.js";
 import metaRoutes from "./routes/meta.js";
 import adminRoutes from "./routes/admin.js";
+import chatRoutes from "./routes/chat.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/citas", citaRoutes);
 app.use("/api/metas", metaRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => {

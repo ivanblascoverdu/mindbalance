@@ -23,6 +23,8 @@ import HeadphonesIcon from "@mui/icons-material/Headphones";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "../context/AuthContext";
+import LockIcon from "@mui/icons-material/Lock";
+import { useNavigate } from "react-router-dom";
 
 interface Recurso {
   _id: string;
@@ -32,6 +34,7 @@ interface Recurso {
   url: string;
   categoria: string;
   tags: string[];
+  esPremium?: boolean;
 }
 
 export default function Biblioteca() {
@@ -40,6 +43,15 @@ export default function Biblioteca() {
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const { usuario } = useAuth();
   const isAdmin = usuario?.rol === "admin";
+  const navigate = useNavigate();
+  
+  // Check if user has premium subscription
+  const hasSubscription = 
+    usuario?.rol === "admin" || 
+    usuario?.rol === "profesional" || 
+    usuario?.suscripcion === "premium" || 
+    usuario?.suscripcion === "profesional";
+
   const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null);
 
   useEffect(() => {
@@ -58,6 +70,7 @@ export default function Biblioteca() {
               url: "https://example.com/respiracion",
               categoria: "Ansiedad",
               tags: ["respiración", "estrés"],
+              esPremium: false,
             },
             {
               _id: "2",
@@ -67,6 +80,7 @@ export default function Biblioteca() {
               url: "https://example.com/audio.mp3",
               categoria: "Sueño",
               tags: ["meditación", "insomnio"],
+              esPremium: true,
             },
             {
               _id: "3",
@@ -76,6 +90,7 @@ export default function Biblioteca() {
               url: "https://example.com/video",
               categoria: "Inteligencia Emocional",
               tags: ["emociones", "psicología"],
+              esPremium: false,
             },
             {
               _id: "4",
@@ -85,6 +100,7 @@ export default function Biblioteca() {
               url: "https://example.com/ejercicio",
               categoria: "Bienestar",
               tags: ["salud", "ejercicio"],
+              esPremium: true,
             },
             {
               _id: "5",
@@ -94,6 +110,17 @@ export default function Biblioteca() {
               url: "https://example.com/podcast",
               categoria: "Motivación",
               tags: ["historias", "motivación"],
+              esPremium: false,
+            },
+            {
+              _id: "6",
+              titulo: "Masterclass: Nutrición y Mente",
+              descripcion: "Cómo la alimentación influye en tu estado de ánimo.",
+              tipo: "video",
+              url: "https://example.com/nutricion",
+              categoria: "Nutrición",
+              tags: ["salud", "alimentación"],
+              esPremium: true,
             },
           ]);
         }
@@ -109,6 +136,7 @@ export default function Biblioteca() {
               url: "https://example.com/respiracion",
               categoria: "Ansiedad",
               tags: ["respiración", "estrés"],
+              esPremium: false,
             },
         ]);
       } finally {
@@ -183,13 +211,24 @@ export default function Biblioteca() {
                 />
               </Grid>
             ))
-          : recursosFiltrados.map((r) => (
+          : recursosFiltrados.map((r) => {
+              const canAccess = !r.esPremium || hasSubscription;
+              return (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={r._id}>
                 <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box display="flex" justifyContent="space-between" mb={1}>
                       <Chip label={r.categoria} size="small" color="primary" variant="outlined" />
                       <Box display="flex" alignItems="center" gap={1}>
+                        {r.esPremium && (
+                            <Chip 
+                                icon={<LockIcon fontSize="small" />} 
+                                label="Premium" 
+                                size="small" 
+                                color="warning" 
+                                variant="filled"
+                            />
+                        )}
                         <Chip 
                             icon={getIcon(r.tipo)} 
                             label={r.tipo.charAt(0).toUpperCase() + r.tipo.slice(1)} 
@@ -210,19 +249,32 @@ export default function Biblioteca() {
                       {r.descripcion}
                     </Typography>
                     <Box mt="auto">
-                        <Button 
-                            variant="outlined" 
-                            size="small" 
-                            onClick={() => handleOpenRecurso(r)}
-                            fullWidth
-                        >
-                            {isAdmin ? "Ver Enlace" : "Ver Recurso"}
-                        </Button>
+                        {canAccess ? (
+                            <Button 
+                                variant="outlined" 
+                                size="small" 
+                                onClick={() => handleOpenRecurso(r)}
+                                fullWidth
+                            >
+                                {isAdmin ? "Ver Enlace" : "Ver Recurso"}
+                            </Button>
+                        ) : (
+                            <Button 
+                                variant="contained" 
+                                color="warning"
+                                size="small" 
+                                startIcon={<LockIcon />}
+                                onClick={() => navigate("/suscripciones")}
+                                fullWidth
+                            >
+                                Desbloquear
+                            </Button>
+                        )}
                     </Box>
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
+            )})}
       </Grid>
 
       <Dialog open={!!selectedRecurso} onClose={handleClose} maxWidth="md" fullWidth>

@@ -8,6 +8,7 @@ export interface IRecurso extends Document {
   categoria: string; // Ej: "Ansiedad", "Depresión", "Autoestima"
   tags: string[];
   imagen?: string;
+  esPremium: boolean;
   createdAt: Date;
 }
 
@@ -19,6 +20,7 @@ const recursoSchema = new Schema<IRecurso>({
   categoria: { type: String, required: true },
   tags: [{ type: String }],
   imagen: { type: String },
+  esPremium: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 

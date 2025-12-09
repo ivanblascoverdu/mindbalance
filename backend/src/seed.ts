@@ -87,6 +87,7 @@ const seedData = async () => {
         url: "https://example.com/respiracion",
         categoria: "Ansiedad",
         tags: ["respiración", "calma", "crisis"],
+        esPremium: false,
       },
       {
         titulo: "Meditación Guiada: Escaneo Corporal",
@@ -95,6 +96,7 @@ const seedData = async () => {
         url: "https://example.com/audio1.mp3",
         categoria: "Mindfulness",
         tags: ["meditación", "relajación"],
+        esPremium: true,
       },
       {
         titulo: "¿Qué es la Terapia Cognitivo Conductual?",
@@ -103,6 +105,7 @@ const seedData = async () => {
         url: "https://youtube.com/watch?v=example",
         categoria: "Psicología",
         tags: ["educación", "terapia"],
+        esPremium: false,
       },
       {
         titulo: "Diario de Gratitud",
@@ -111,6 +114,25 @@ const seedData = async () => {
         url: "https://example.com/gratitud",
         categoria: "Bienestar",
         tags: ["gratitud", "positividad"],
+        esPremium: true,
+      },
+      {
+        titulo: "Gestión del Tiempo para Reducir Estrés",
+        descripcion: "Consejos prácticos para organizar tu día a día.",
+        tipo: "articulo",
+        url: "https://example.com/tiempo",
+        categoria: "Productividad",
+        tags: ["organización", "estrés"],
+        esPremium: false,
+      },
+      {
+        titulo: "Masterclass: Yoga para la Ansiedad",
+        descripcion: "Sesión completa de 45 minutos de yoga restaurativo.",
+        tipo: "video",
+        url: "https://example.com/yoga",
+        categoria: "Yoga",
+        tags: ["yoga", "cuerpo", "ansiedad"],
+        esPremium: true,
       },
     ];
 

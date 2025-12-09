@@ -7,6 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import theme from "./theme/theme";
+import Chatbot from "./components/Chatbot";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -197,6 +198,7 @@ function AppContent() {
             />
           </Routes>
         </main>
+        {!hideNav && <Chatbot />}
       </div>
     </ThemeProvider>
   );
