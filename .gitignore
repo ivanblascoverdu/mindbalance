@@ -9,11 +9,16 @@ backend/dist/
 
 # Environment variables
 .env
-.env.*
+.env.local
+.env.development
+.env.production
+!.env.example
 backend/.env
 backend/.env.*
+!backend/.env.example
 frontend/.env
-frontend/.env.*
+frontend/.env.local
+!frontend/.env.example
 
 # Logs
 *.log

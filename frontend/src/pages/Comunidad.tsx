@@ -30,8 +30,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import ShareIcon from "@mui/icons-material/Share";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import CheckIcon from "@mui/icons-material/Check";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+// CheckIcon and ContentCopyIcon removed - not currently used
 import { useAuth } from "../context/AuthContext";
 
 interface Comentario {
@@ -420,11 +419,15 @@ export default function Comunidad() {
                             {TRENDING_HASHTAGS.map((item, index) => (
                                 <ListItem 
                                     key={index} 
-                                    button 
+                                    component="button"
                                     onClick={() => setActiveHashtag(item.tag)}
                                     sx={{ 
                                         borderRadius: 1, 
-                                        bgcolor: activeHashtag === item.tag ? "action.selected" : "transparent" 
+                                        bgcolor: activeHashtag === item.tag ? "action.selected" : "transparent",
+                                        border: "none",
+                                        width: "100%",
+                                        textAlign: "left",
+                                        cursor: "pointer"
                                     }}
                                 >
                                     <ListItemText 

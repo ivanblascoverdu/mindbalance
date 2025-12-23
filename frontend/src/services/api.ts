@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api";
+// Usar variable de entorno para la URL del API
+// En desarrollo: http://localhost:4000/api
+// En producción: la URL del backend desplegado
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 const api = axios.create({
   baseURL: API_URL,
