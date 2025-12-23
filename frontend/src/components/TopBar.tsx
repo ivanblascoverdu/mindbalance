@@ -7,16 +7,25 @@ import {
   Menu,
   MenuItem,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function TopBar() {
+interface TopBarProps {
+  onMenuClick?: () => void;
+}
+
+export default function TopBar({ onMenuClick }: TopBarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { logout, usuario } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -44,15 +53,52 @@ export default function TopBar() {
       }}
     >
       <Toolbar sx={{ minHeight: 64 }}>
-        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: "primary.main", letterSpacing: "-0.5px", fontSize: 24 }}>
+        {/* Hamburger menu for mobile */}
+        {isMobile && (
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={onMenuClick}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+        
+        <Typography 
+          variant="h6" 
+          noWrap 
+          component="div" 
+          sx={{ 
+            fontWeight: 700, 
+            color: "primary.main", 
+            letterSpacing: "-0.5px", 
+            fontSize: { xs: 18, sm: 24 }
+          }}
+        >
           MindBalance
         </Typography>
         <Box flexGrow={1}></Box>
-        <Typography variant="body1" sx={{ mr: 2, fontWeight: 500 }}>
+        
+        {/* Hide greeting on very small screens */}
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            mr: 2, 
+            fontWeight: 500,
+            display: { xs: "none", sm: "block" }
+          }}
+        >
           Hola, {usuario?.nombre || "Usuario"}
         </Typography>
-        <IconButton size="large" onClick={handleOpenMenu} sx={{ mr: 1 }}>
-          <Avatar src="/assets/avatar.svg" alt={usuario?.nombre} />
+        
+        <IconButton size="large" onClick={handleOpenMenu} sx={{ mr: { xs: 0, sm: 1 } }}>
+          <Avatar 
+            src="/assets/avatar.svg" 
+            alt={usuario?.nombre}
+            sx={{ width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 } }}
+          />
         </IconButton>
         <Menu
           anchorEl={anchorEl}

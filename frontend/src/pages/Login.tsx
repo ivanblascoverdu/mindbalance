@@ -50,9 +50,10 @@ export default function Login() {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="80vh"
+      minHeight="100vh"
+      sx={{ px: { xs: 2, sm: 3 }, py: { xs: 4, sm: 0 } }}
     >
-      <Card sx={{ maxWidth: 400, width: "100%" }}>
+      <Card sx={{ maxWidth: 400, width: "100%", mx: "auto" }}>
         <CardContent>
           <Typography variant="h5" fontWeight={700} gutterBottom>
             Iniciar sesión

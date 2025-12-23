@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider, CircularProgress, Box } from "@mui/material";
+import { CssBaseline, ThemeProvider, CircularProgress, Box, useMediaQuery, useTheme } from "@mui/material";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,6 +6,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
+import { useState } from "react";
 import theme from "./theme/theme";
 import Chatbot from "./components/Chatbot";
 import Sidebar from "./components/Sidebar";
@@ -29,9 +30,18 @@ import ProgramaDetalle from "./pages/ProgramaDetalle";
 import Suscripciones from "./pages/Suscripciones";
 import Perfil from "./pages/Perfil";
 
+const DRAWER_WIDTH = 220;
+
 function AppContent() {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   if (loading) {
     return (
@@ -55,15 +65,24 @@ function AppContent() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!hideNav && <TopBar />}
-      <div style={{ display: "flex" }}>
-        {!hideNav && <Sidebar />}
-        <main
-          style={{
+      {!hideNav && <TopBar onMenuClick={handleDrawerToggle} />}
+      <Box sx={{ display: "flex" }}>
+        {!hideNav && (
+          <Sidebar 
+            mobileOpen={mobileOpen} 
+            onMobileClose={() => setMobileOpen(false)} 
+          />
+        )}
+        <Box
+          component="main"
+          sx={{
             flexGrow: 1,
-            padding: "2rem",
+            p: { xs: 1, sm: 2, md: 3 },
             minHeight: "100vh",
             width: "100%",
+            // Add margin for sidebar on desktop
+            ml: !hideNav && !isMobile ? `${DRAWER_WIDTH}px` : 0,
+            transition: "margin-left 0.3s ease",
           }}
         >
           {!hideNav && <Box sx={{ height: 64 }} />}
@@ -197,9 +216,9 @@ function AppContent() {
               }
             />
           </Routes>
-        </main>
+        </Box>
         {!hideNav && <Chatbot />}
-      </div>
+      </Box>
     </ThemeProvider>
   );
 }

@@ -8,6 +8,8 @@ import {
   Typography,
   Box,
   Badge,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -23,10 +25,19 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-export default function Sidebar() {
+const DRAWER_WIDTH = 220;
+
+interface SidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const location = useLocation();
   const { usuario } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     if (usuario?.rol === "admin") {
@@ -75,158 +86,119 @@ export default function Sidebar() {
     { text: "Configuración", icon: <SettingsIcon />, to: "/admin/config" },
   ];
 
-  // Items for Admin to manage content (reusing paths but context will differ)
   const adminContentItems = [
     { text: "Gestionar Programas", icon: <AssignmentIcon />, to: "/programas" },
     { text: "Gestionar Biblioteca", icon: <MenuBookIcon />, to: "/biblioteca" },
     { text: "Gestionar Comunidad", icon: <GroupsIcon />, to: "/comunidad" },
   ];
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: 220,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: 220,
-          boxSizing: "border-box",
-          background: "#fff",
-          borderRight: "1px solid #eef2f6",
-          top: 64, // Push sidebar down by TopBar height
-          height: "calc(100% - 64px)", // Adjust height
-        },
-      }}
-    >
+  const handleItemClick = () => {
+    if (isMobile) {
+      onMobileClose();
+    }
+  };
 
-      
+  const renderMenuItems = (items: { text: string; icon: React.ReactNode; to: string }[]) => (
+    <List>
+      {items.map(({ text, icon, to }) => (
+        <ListItemButton
+          component={Link}
+          to={to}
+          key={text}
+          selected={location.pathname === to}
+          onClick={handleItemClick}
+          sx={{
+            borderRadius: "0 24px 24px 0",
+            mr: 2,
+            "&.Mui-selected": {
+              bgcolor: "primary.light",
+              color: "white",
+              "&:hover": {
+                bgcolor: "primary.main",
+              },
+              "& .MuiListItemIcon-root": {
+                color: "white",
+              },
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
+          <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
+        </ListItemButton>
+      ))}
+    </List>
+  );
+
+  const drawerContent = (
+    <>
       {/* CLIENT MENU */}
-      {usuario?.rol === "usuario" && (
-        <List>
-          {clientItems.map(({ text, icon, to }) => (
-            <ListItemButton
-              component={Link}
-              to={to}
-              key={text}
-              selected={location.pathname === to}
-              sx={{
-                borderRadius: "0 24px 24px 0",
-                mr: 2,
-                "&.Mui-selected": {
-                  bgcolor: "primary.light",
-                  color: "white",
-                  "&:hover": {
-                    bgcolor: "primary.main",
-                  },
-                  "& .MuiListItemIcon-root": {
-                    color: "white",
-                  },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
-              <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
-            </ListItemButton>
-          ))}
-        </List>
-      )}
+      {usuario?.rol === "usuario" && renderMenuItems(clientItems)}
 
       {/* PROFESSIONAL MENU */}
-      {usuario?.rol === "profesional" && (
-        <List>
-          {professionalItems.map(({ text, icon, to }) => (
-            <ListItemButton
-              component={Link}
-              to={to}
-              key={text}
-              selected={location.pathname === to}
-              sx={{
-                borderRadius: "0 24px 24px 0",
-                mr: 2,
-                "&.Mui-selected": {
-                  bgcolor: "primary.light",
-                  color: "white",
-                  "&:hover": {
-                    bgcolor: "primary.main",
-                  },
-                  "& .MuiListItemIcon-root": {
-                    color: "white",
-                  },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
-              <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
-            </ListItemButton>
-          ))}
-        </List>
-      )}
+      {usuario?.rol === "profesional" && renderMenuItems(professionalItems)}
 
       {/* ADMIN MENU */}
       {usuario?.rol === "admin" && (
         <>
-          <List>
-            {adminItems.map(({ text, icon, to }) => (
-              <ListItemButton
-                component={Link}
-                to={to}
-                key={text}
-                selected={location.pathname === to}
-                sx={{
-                  borderRadius: "0 24px 24px 0",
-                  mr: 2,
-                  "&.Mui-selected": {
-                    bgcolor: "primary.light",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "primary.main",
-                    },
-                    "& .MuiListItemIcon-root": {
-                      color: "white",
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
-                <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
-              </ListItemButton>
-            ))}
-          </List>
+          {renderMenuItems(adminItems)}
           <Divider sx={{ my: 1 }} />
           <Box px={2} py={1}>
             <Typography variant="caption" color="text.secondary" fontWeight={700}>
               GESTIÓN DE CONTENIDO
             </Typography>
           </Box>
-          <List>
-            {adminContentItems.map(({ text, icon, to }) => (
-              <ListItemButton
-                component={Link}
-                to={to}
-                key={text}
-                selected={location.pathname === to}
-                sx={{
-                  borderRadius: "0 24px 24px 0",
-                  mr: 2,
-                  "&.Mui-selected": {
-                    bgcolor: "primary.light",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "primary.main",
-                    },
-                    "& .MuiListItemIcon-root": {
-                      color: "white",
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: "text.secondary" }}>{icon}</ListItemIcon>
-                <ListItemText primary={text} primaryTypographyProps={{ fontWeight: 500 }} />
-              </ListItemButton>
-            ))}
-          </List>
+          {renderMenuItems(adminContentItems)}
         </>
       )}
+    </>
+  );
+
+  // Mobile drawer (temporary)
+  if (isMobile) {
+    return (
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{
+          keepMounted: true, // Better mobile performance
+        }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
+            width: DRAWER_WIDTH,
+            boxSizing: "border-box",
+            background: "#fff",
+            borderRight: "1px solid #eef2f6",
+            top: 64,
+            height: "calc(100% - 64px)",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    );
+  }
+
+  // Desktop drawer (permanent)
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        display: { xs: "none", md: "block" },
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: {
+          width: DRAWER_WIDTH,
+          boxSizing: "border-box",
+          background: "#fff",
+          borderRight: "1px solid #eef2f6",
+          top: 64,
+          height: "calc(100% - 64px)",
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   );
 }

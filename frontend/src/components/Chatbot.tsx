@@ -70,14 +70,15 @@ const Chatbot = () => {
           elevation={3} 
           sx={{ 
             position: 'fixed', 
-            bottom: 80, 
-            right: 20, 
-            width: 350, 
-            height: 500, 
+            bottom: { xs: 0, sm: 80 }, 
+            right: { xs: 0, sm: 20 }, 
+            left: { xs: 0, sm: 'auto' },
+            width: { xs: '100%', sm: 350 }, 
+            height: { xs: 'calc(100vh - 64px)', sm: 500 }, 
             display: 'flex', 
             flexDirection: 'column', 
             zIndex: 1000,
-            borderRadius: 2,
+            borderRadius: { xs: 0, sm: 2 },
             overflow: 'hidden'
           }}
         >
