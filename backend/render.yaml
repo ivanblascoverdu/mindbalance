@@ -1,0 +1,14 @@
+# render.yaml - Configuración para despliegue en Render
+services:
+  - type: web
+    name: mindbalance-backend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
