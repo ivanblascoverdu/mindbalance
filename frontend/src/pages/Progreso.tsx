@@ -65,8 +65,8 @@ export default function Progreso() {
       console.error("Error cargando metas:", error);
       // Fallback
       setMetas([
-          { _id: "1", titulo: "Meditar 10 minutos al día", completada: true },
-          { _id: "2", titulo: "Beber 2 litros de agua", completada: false },
+        { _id: "1", titulo: "Meditar 10 minutos al día", completada: true },
+        { _id: "2", titulo: "Beber 2 litros de agua", completada: false },
       ]);
     }
   };
@@ -86,12 +86,12 @@ export default function Progreso() {
     try {
       await api.put(`/metas/${id}/toggle`);
       const meta = metas.find(m => m._id === id);
-      
+
       if (usuario) {
         if (meta && !meta.completada) {
-            setUsuario({ ...usuario, puntos: usuario.puntos + 50 });
+          setUsuario({ ...usuario, puntos: usuario.puntos + 50 });
         } else if (meta && meta.completada) {
-            setUsuario({ ...usuario, puntos: Math.max(0, usuario.puntos - 50) });
+          setUsuario({ ...usuario, puntos: Math.max(0, usuario.puntos - 50) });
         }
       }
 
@@ -120,7 +120,7 @@ export default function Progreso() {
   const progressLevel = (xp % 500) / 500 * 100;
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Typography variant="h4" fontWeight={700} gutterBottom>
         Tu Progreso y Logros
       </Typography>
@@ -131,48 +131,48 @@ export default function Progreso() {
       <Grid container spacing={3} mb={4}>
         {/* Gamification Card */}
         <Grid size={{ xs: 12, md: 8 }}>
-            <Card variant="outlined" sx={{ background: "linear-gradient(135deg, #2A9D8F 0%, #264653 100%)", color: "white" }}>
-                <CardContent>
-                    <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Box>
-                            <Typography variant="h6" fontWeight={700}>Nivel {nivel}</Typography>
-                            <Typography variant="body2" sx={{ opacity: 0.8 }}>Explorador del Bienestar</Typography>
-                        </Box>
-                        <Avatar sx={{ bgcolor: "warning.main", width: 56, height: 56 }}>
-                            <EmojiEventsIcon fontSize="large" />
-                        </Avatar>
-                    </Box>
-                    <Box mt={2}>
-                        <Box display="flex" justifyContent="space-between" mb={0.5}>
-                            <Typography variant="caption" fontWeight={700}>{xp} XP</Typography>
-                            <Typography variant="caption">{xpNextLevel} XP para nivel {nivel + 1}</Typography>
-                        </Box>
-                        <LinearProgress 
-                            variant="determinate" 
-                            value={progressLevel} 
-                            sx={{ height: 8, borderRadius: 4, bgcolor: "rgba(255,255,255,0.2)", "& .MuiLinearProgress-bar": { bgcolor: "warning.main" } }} 
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
+          <Card variant="outlined" sx={{ background: "linear-gradient(135deg, #2A9D8F 0%, #264653 100%)", color: "white" }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h6" fontWeight={700}>Nivel {nivel}</Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.8 }}>Explorador del Bienestar</Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: "warning.main", width: 56, height: 56 }}>
+                  <EmojiEventsIcon fontSize="large" />
+                </Avatar>
+              </Box>
+              <Box mt={2}>
+                <Box display="flex" justifyContent="space-between" mb={0.5}>
+                  <Typography variant="caption" fontWeight={700}>{xp} XP</Typography>
+                  <Typography variant="caption">{xpNextLevel} XP para nivel {nivel + 1}</Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={progressLevel}
+                  sx={{ height: 8, borderRadius: 4, bgcolor: "rgba(255,255,255,0.2)", "& .MuiLinearProgress-bar": { bgcolor: "warning.main" } }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
 
         {/* Shop Teaser */}
         <Grid size={{ xs: 12, md: 4 }}>
-            <Card variant="outlined" sx={{ height: "100%" }}>
-                <CardContent>
-                    <Box display="flex" alignItems="center" gap={1} mb={2}>
-                        <ShoppingBagIcon color="secondary" />
-                        <Typography variant="h6" fontWeight={700}>Tienda de Puntos</Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                        Canjea tus XP por temas exclusivos, avatares y descuentos en sesiones.
-                    </Typography>
-                    <Button variant="outlined" color="secondary" fullWidth size="small" onClick={() => setOpenCatalog(true)}>
-                        Ver Catálogo
-                    </Button>
-                </CardContent>
-            </Card>
+          <Card variant="outlined" sx={{ height: "100%" }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" gap={1} mb={2}>
+                <ShoppingBagIcon color="secondary" />
+                <Typography variant="h6" fontWeight={700}>Tienda de Puntos</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Canjea tus XP por temas exclusivos, avatares y descuentos en sesiones.
+              </Typography>
+              <Button variant="outlined" color="secondary" fullWidth size="small" onClick={() => setOpenCatalog(true)}>
+                Ver Catálogo
+              </Button>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
 
@@ -235,75 +235,75 @@ export default function Progreso() {
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-            <ProgressChart />
-            <Box mt={3}>
-                <Card variant="outlined">
-                    <CardContent>
-                        <Typography variant="h6" fontWeight={700} gutterBottom>Histórico de Hábitos</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Has mantenido una racha de 5 días cumpliendo tus metas. ¡Sigue así para ganar bonificaciones de XP!
-                        </Typography>
-                        <Box mt={2} display="flex" gap={1}>
-                            {[1,2,3,4,5,6,7].map(day => (
-                                <Box 
-                                    key={day} 
-                                    width={32} 
-                                    height={32} 
-                                    borderRadius="50%" 
-                                    bgcolor={day <= 5 ? "success.main" : "action.hover"} 
-                                    display="flex" 
-                                    alignItems="center" 
-                                    justifyContent="center"
-                                    color="white"
-                                    fontWeight={700}
-                                    fontSize={12}
-                                >
-                                    {day <= 5 ? "✓" : ""}
-                                </Box>
-                            ))}
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
+          <ProgressChart />
+          <Box mt={3}>
+            <Card variant="outlined">
+              <CardContent>
+                <Typography variant="h6" fontWeight={700} gutterBottom>Histórico de Hábitos</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Has mantenido una racha de 5 días cumpliendo tus metas. ¡Sigue así para ganar bonificaciones de XP!
+                </Typography>
+                <Box mt={2} display="flex" gap={1}>
+                  {[1, 2, 3, 4, 5, 6, 7].map(day => (
+                    <Box
+                      key={day}
+                      width={32}
+                      height={32}
+                      borderRadius="50%"
+                      bgcolor={day <= 5 ? "success.main" : "action.hover"}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      color="white"
+                      fontWeight={700}
+                      fontSize={12}
+                    >
+                      {day <= 5 ? "✓" : ""}
+                    </Box>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
         </Grid>
       </Grid>
 
       <Dialog open={openCatalog} onClose={() => setOpenCatalog(false)} maxWidth="md" fullWidth>
         <DialogTitle>Catálogo de Recompensas</DialogTitle>
         <DialogContent dividers>
-            <Typography gutterBottom>¡Canjea tus puntos de experiencia por recompensas exclusivas!</Typography>
-            <Grid container spacing={2}>
-                {[
-                    { title: "Tema Oscuro 'Zen'", cost: 500, icon: "🌙" },
-                    { title: "Avatar 'Guerrero de Luz'", cost: 1000, icon: "🛡️" },
-                    { title: "Pack de Sonidos Naturales", cost: 300, icon: "🎵" },
-                    { title: "Descuento 10% en Sesión", cost: 2000, icon: "🏷️" },
-                    { title: "Insignia 'Meditador Pro'", cost: 150, icon: "🏅" },
-                    { title: "Tema 'Bosque Encantado'", cost: 600, icon: "🌲" },
-                ].map((item, index) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
-                        <Card variant="outlined">
-                            <CardContent sx={{ textAlign: "center" }}>
-                                <Typography fontSize={40}>{item.icon}</Typography>
-                                <Typography fontWeight={700} gutterBottom>{item.title}</Typography>
-                                <Chip label={`${item.cost} XP`} color="warning" size="small" />
-                                <Button 
-                                    variant="contained" 
-                                    fullWidth 
-                                    sx={{ mt: 2 }} 
-                                    disabled={xp < item.cost}
-                                    onClick={() => alert(`¡Has canjeado ${item.title}!`)}
-                                >
-                                    Canjear
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
+          <Typography gutterBottom>¡Canjea tus puntos de experiencia por recompensas exclusivas!</Typography>
+          <Grid container spacing={2}>
+            {[
+              { title: "Tema Oscuro 'Zen'", cost: 500, icon: "🌙" },
+              { title: "Avatar 'Guerrero de Luz'", cost: 1000, icon: "🛡️" },
+              { title: "Pack de Sonidos Naturales", cost: 300, icon: "🎵" },
+              { title: "Descuento 10% en Sesión", cost: 2000, icon: "🏷️" },
+              { title: "Insignia 'Meditador Pro'", cost: 150, icon: "🏅" },
+              { title: "Tema 'Bosque Encantado'", cost: 600, icon: "🌲" },
+            ].map((item, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                <Card variant="outlined">
+                  <CardContent sx={{ textAlign: "center" }}>
+                    <Typography fontSize={40}>{item.icon}</Typography>
+                    <Typography fontWeight={700} gutterBottom>{item.title}</Typography>
+                    <Chip label={`${item.cost} XP`} color="warning" size="small" />
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{ mt: 2 }}
+                      disabled={xp < item.cost}
+                      onClick={() => alert(`¡Has canjeado ${item.title}!`)}
+                    >
+                      Canjear
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         </DialogContent>
         <DialogActions>
-            <Button onClick={() => setOpenCatalog(false)}>Cerrar</Button>
+          <Button onClick={() => setOpenCatalog(false)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </Box>

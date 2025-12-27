@@ -89,31 +89,31 @@ export default function Programas() {
         console.error("Error cargando programas:", error);
         // Fallback mock data on error
         setProgramas([
-            {
-              _id: "1",
-              titulo: "Gestión de la Ansiedad",
-              descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
-              sesiones: 8,
-              sesionesCompletadas: 3,
-              color: "primary",
-            },
-            {
-              _id: "2",
-              titulo: "Mindfulness Básico",
-              descripcion: "Introducción a la atención plena para reducir el estrés.",
-              sesiones: 5,
-              sesionesCompletadas: 1,
-              color: "secondary",
-            },
-            {
-                _id: "4",
-                titulo: "Autoestima y Confianza",
-                descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
-                sesiones: 10,
-                sesionesCompletadas: 0,
-                color: "warning",
-                isPremium: true,
-            },
+          {
+            _id: "1",
+            titulo: "Gestión de la Ansiedad",
+            descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
+            sesiones: 8,
+            sesionesCompletadas: 3,
+            color: "primary",
+          },
+          {
+            _id: "2",
+            titulo: "Mindfulness Básico",
+            descripcion: "Introducción a la atención plena para reducir el estrés.",
+            sesiones: 5,
+            sesionesCompletadas: 1,
+            color: "secondary",
+          },
+          {
+            _id: "4",
+            titulo: "Autoestima y Confianza",
+            descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
+            sesiones: 10,
+            sesionesCompletadas: 0,
+            color: "warning",
+            isPremium: true,
+          },
         ]);
       } finally {
         setLoading(false);
@@ -124,7 +124,7 @@ export default function Programas() {
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>
@@ -144,25 +144,25 @@ export default function Programas() {
       <Grid container spacing={3}>
         {loading
           ? [1, 2, 3, 4].map((n) => (
-              <Grid size={{ xs: 12, md: 6, lg: 3 }} key={n}>
-                <Skeleton
-                  variant="rectangular"
-                  height={230}
-                  sx={{ borderRadius: 2 }}
-                />
-              </Grid>
-            ))
+            <Grid size={{ xs: 12, md: 6, lg: 3 }} key={n}>
+              <Skeleton
+                variant="rectangular"
+                height={230}
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+          ))
           : programas.map((p) => {
-              const accessible = hasAccess(p);
-              return (
+            const accessible = hasAccess(p);
+            return (
               <Grid size={{ xs: 12, md: 6, lg: 3 }} key={p._id}>
                 <Card variant="outlined" sx={{ position: 'relative', opacity: accessible ? 1 : 0.8 }}>
                   {p.isPremium && (
-                    <Chip 
-                        label="PREMIUM" 
-                        color="warning" 
-                        size="small" 
-                        sx={{ position: 'absolute', top: 10, right: 10, fontWeight: 'bold' }} 
+                    <Chip
+                      label="PREMIUM"
+                      color="warning"
+                      size="small"
+                      sx={{ position: 'absolute', top: 10, right: 10, fontWeight: 'bold' }}
                     />
                   )}
                   <CardContent>
@@ -183,7 +183,7 @@ export default function Programas() {
                       {p.sesiones} sesiones
                     </Typography>
                     <Typography mb={2}>{p.descripcion}</Typography>
-                    
+
                     {!isAdmin && (
                       <>
                         <Typography fontWeight={700}>
@@ -202,14 +202,14 @@ export default function Programas() {
                           startIcon={!accessible ? <LockIcon /> : null}
                           onClick={() => accessible ? navigate(`/programas/${p._id}`) : navigate('/suscripciones')}
                         >
-                          {accessible 
+                          {accessible
                             ? (p.sesionesCompletadas === 0 ? "Comenzar programa" : "Continuar programa")
                             : "Desbloquear con Premium"
                           }
                         </Button>
                       </>
                     )}
-                    
+
                     {isAdmin && (
                       <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
                         Editar Contenido
@@ -218,7 +218,8 @@ export default function Programas() {
                   </CardContent>
                 </Card>
               </Grid>
-            )})}
+            )
+          })}
       </Grid>
     </Box>
   );

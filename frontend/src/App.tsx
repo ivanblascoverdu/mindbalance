@@ -68,21 +68,23 @@ function AppContent() {
       {!hideNav && <TopBar onMenuClick={handleDrawerToggle} />}
       <Box sx={{ display: "flex" }}>
         {!hideNav && (
-          <Sidebar 
-            mobileOpen={mobileOpen} 
-            onMobileClose={() => setMobileOpen(false)} 
+          <Sidebar
+            mobileOpen={mobileOpen}
+            onMobileClose={() => setMobileOpen(false)}
           />
         )}
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            p: { xs: 1, sm: 2, md: 3 },
+            p: { xs: 2, sm: 3, md: 4 },
             minHeight: "100vh",
             width: "100%",
+            maxWidth: "100%",
             // Add margin for sidebar on desktop
             ml: !hideNav && !isMobile ? `${DRAWER_WIDTH}px` : 0,
             transition: "margin-left 0.3s ease",
+            boxSizing: "border-box",
           }}
         >
           {!hideNav && <Box sx={{ height: 64 }} />}

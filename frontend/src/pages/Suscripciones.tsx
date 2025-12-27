@@ -35,30 +35,30 @@ export default function Suscripciones() {
 
   const handlePayment = async () => {
     setProcessing(true);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
-        if (usuario && selectedPlan) {
-            const newSubscription = selectedPlan.title.toLowerCase();
-            // Update backend
-            await api.put("/auth/me", { suscripcion: newSubscription });
-            
-            // Update local context
-            setUsuario({ ...usuario, suscripcion: newSubscription });
-            
-            setSnackOpen(true);
-            setSelectedPlan(null);
-            // Reset form
-            setCardNumber("");
-            setExpiry("");
-            setCvc("");
-        }
+      if (usuario && selectedPlan) {
+        const newSubscription = selectedPlan.title.toLowerCase();
+        // Update backend
+        await api.put("/auth/me", { suscripcion: newSubscription });
+
+        // Update local context
+        setUsuario({ ...usuario, suscripcion: newSubscription });
+
+        setSnackOpen(true);
+        setSelectedPlan(null);
+        // Reset form
+        setCardNumber("");
+        setExpiry("");
+        setCvc("");
+      }
     } catch (error) {
-        console.error("Error updating subscription:", error);
+      console.error("Error updating subscription:", error);
     } finally {
-        setProcessing(false);
+      setProcessing(false);
     }
   };
 
@@ -111,7 +111,7 @@ export default function Suscripciones() {
   ];
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Box textAlign="center" mb={6}>
         <Typography variant="h3" fontWeight={700} gutterBottom>
           Invierte en tu Bienestar
@@ -234,74 +234,74 @@ export default function Suscripciones() {
       <Dialog open={!!selectedPlan} onClose={() => setSelectedPlan(null)} maxWidth="sm" fullWidth>
         <DialogTitle>Suscribirse al Plan {selectedPlan?.title}</DialogTitle>
         <DialogContent>
-            <Typography gutterBottom>
-                Estás a un paso de mejorar tu bienestar. Por favor, introduce tus datos de pago.
-            </Typography>
-            <Box component="form" sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-                <TextField label="Nombre en la tarjeta" fullWidth />
-                <TextField 
-                    label="Número de tarjeta" 
-                    fullWidth 
-                    placeholder="0000 0000 0000 0000" 
-                    value={cardNumber}
-                    onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').substring(0, 16);
-                        setCardNumber(val);
-                    }}
-                    error={cardNumber.length > 0 && cardNumber.length < 16}
-                    helperText={cardNumber.length > 0 && cardNumber.length < 16 ? "Debe tener 16 dígitos" : ""}
-                />
-                <Box display="flex" gap={2}>
-                    <TextField 
-                        label="Fecha de expiración" 
-                        placeholder="MM/YY" 
-                        fullWidth 
-                        value={expiry}
-                        onChange={(e) => {
-                            let val = e.target.value.replace(/\D/g, '');
-                            if (val.length >= 2) {
-                                val = val.substring(0, 2) + '/' + val.substring(2, 4);
-                            }
-                            setExpiry(val);
-                        }}
-                        inputProps={{ maxLength: 5 }}
-                    />
-                    <TextField 
-                        label="CVC" 
-                        placeholder="123" 
-                        fullWidth 
-                        value={cvc}
-                        onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '').substring(0, 3);
-                            setCvc(val);
-                        }}
-                        inputProps={{ maxLength: 3 }}
-                    />
-                </Box>
+          <Typography gutterBottom>
+            Estás a un paso de mejorar tu bienestar. Por favor, introduce tus datos de pago.
+          </Typography>
+          <Box component="form" sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField label="Nombre en la tarjeta" fullWidth />
+            <TextField
+              label="Número de tarjeta"
+              fullWidth
+              placeholder="0000 0000 0000 0000"
+              value={cardNumber}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').substring(0, 16);
+                setCardNumber(val);
+              }}
+              error={cardNumber.length > 0 && cardNumber.length < 16}
+              helperText={cardNumber.length > 0 && cardNumber.length < 16 ? "Debe tener 16 dígitos" : ""}
+            />
+            <Box display="flex" gap={2}>
+              <TextField
+                label="Fecha de expiración"
+                placeholder="MM/YY"
+                fullWidth
+                value={expiry}
+                onChange={(e) => {
+                  let val = e.target.value.replace(/\D/g, '');
+                  if (val.length >= 2) {
+                    val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                  }
+                  setExpiry(val);
+                }}
+                inputProps={{ maxLength: 5 }}
+              />
+              <TextField
+                label="CVC"
+                placeholder="123"
+                fullWidth
+                value={cvc}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').substring(0, 3);
+                  setCvc(val);
+                }}
+                inputProps={{ maxLength: 3 }}
+              />
             </Box>
-            <Box mt={3} p={2} bgcolor="#f5f5f5" borderRadius={1}>
-                <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography>Subtotal</Typography>
-                    <Typography>{selectedPlan?.price}</Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                    <Typography fontWeight={700}>Total a pagar</Typography>
-                    <Typography fontWeight={700}>{selectedPlan?.price}</Typography>
-                </Box>
+          </Box>
+          <Box mt={3} p={2} bgcolor="#f5f5f5" borderRadius={1}>
+            <Box display="flex" justifyContent="space-between" mb={1}>
+              <Typography>Subtotal</Typography>
+              <Typography>{selectedPlan?.price}</Typography>
             </Box>
+            <Box display="flex" justifyContent="space-between">
+              <Typography fontWeight={700}>Total a pagar</Typography>
+              <Typography fontWeight={700}>{selectedPlan?.price}</Typography>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
-            <Button onClick={() => setSelectedPlan(null)}>Cancelar</Button>
-            <Button 
-                variant="contained" 
-                onClick={handlePayment} 
-                disabled={processing || cardNumber.length !== 16 || expiry.length !== 5 || cvc.length !== 3}
-            >
-                {processing ? "Procesando..." : "Pagar y Suscribirse"}
-            </Button>
+          <Button onClick={() => setSelectedPlan(null)}>Cancelar</Button>
+          <Button
+            variant="contained"
+            onClick={handlePayment}
+            disabled={processing || cardNumber.length !== 16 || expiry.length !== 5 || cvc.length !== 3}
+          >
+            {processing ? "Procesando..." : "Pagar y Suscribirse"}
+          </Button>
         </DialogActions>
       </Dialog>
-      
+
       <Snackbar
         open={snackOpen}
         autoHideDuration={6000}

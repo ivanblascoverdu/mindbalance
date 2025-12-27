@@ -44,12 +44,12 @@ export default function Biblioteca() {
   const { usuario } = useAuth();
   const isAdmin = usuario?.rol === "admin";
   const navigate = useNavigate();
-  
+
   // Check if user has premium subscription
-  const hasSubscription = 
-    usuario?.rol === "admin" || 
-    usuario?.rol === "profesional" || 
-    usuario?.suscripcion === "premium" || 
+  const hasSubscription =
+    usuario?.rol === "admin" ||
+    usuario?.rol === "profesional" ||
+    usuario?.suscripcion === "premium" ||
     usuario?.suscripcion === "profesional";
 
   const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null);
@@ -128,16 +128,16 @@ export default function Biblioteca() {
         console.error("Error cargando recursos:", error);
         // Fallback
         setRecursos([
-            {
-              _id: "1",
-              titulo: "Técnicas de Respiración Profunda",
-              descripcion: "Guía paso a paso para calmar la mente en situaciones de estrés.",
-              tipo: "articulo",
-              url: "https://example.com/respiracion",
-              categoria: "Ansiedad",
-              tags: ["respiración", "estrés"],
-              esPremium: false,
-            },
+          {
+            _id: "1",
+            titulo: "Técnicas de Respiración Profunda",
+            descripcion: "Guía paso a paso para calmar la mente en situaciones de estrés.",
+            tipo: "articulo",
+            url: "https://example.com/respiracion",
+            categoria: "Ansiedad",
+            tags: ["respiración", "estrés"],
+            esPremium: false,
+          },
         ]);
       } finally {
         setLoading(false);
@@ -171,7 +171,7 @@ export default function Biblioteca() {
   };
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>
@@ -203,17 +203,17 @@ export default function Biblioteca() {
       <Grid container spacing={3} sx={{ width: "100%" }}>
         {loading
           ? [1, 2, 3, 4, 5, 6].map((n) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={n}>
-                <Skeleton
-                  variant="rectangular"
-                  height={180}
-                  sx={{ borderRadius: 2 }}
-                />
-              </Grid>
-            ))
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={n}>
+              <Skeleton
+                variant="rectangular"
+                height={180}
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+          ))
           : recursosFiltrados.map((r) => {
-              const canAccess = !r.esPremium || hasSubscription;
-              return (
+            const canAccess = !r.esPremium || hasSubscription;
+            return (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={r._id}>
                 <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
@@ -221,24 +221,24 @@ export default function Biblioteca() {
                       <Chip label={r.categoria} size="small" color="primary" variant="outlined" />
                       <Box display="flex" alignItems="center" gap={1}>
                         {r.esPremium && (
-                            <Chip 
-                                icon={<LockIcon fontSize="small" />} 
-                                label="Premium" 
-                                size="small" 
-                                color="warning" 
-                                variant="filled"
-                            />
+                          <Chip
+                            icon={<LockIcon fontSize="small" />}
+                            label="Premium"
+                            size="small"
+                            color="warning"
+                            variant="filled"
+                          />
                         )}
-                        <Chip 
-                            icon={getIcon(r.tipo)} 
-                            label={r.tipo.charAt(0).toUpperCase() + r.tipo.slice(1)} 
-                            size="small" 
+                        <Chip
+                          icon={getIcon(r.tipo)}
+                          label={r.tipo.charAt(0).toUpperCase() + r.tipo.slice(1)}
+                          size="small"
                         />
                         {isAdmin && (
-                            <Box>
-                                <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
-                                <IconButton size="small"><DeleteIcon fontSize="small" /></IconButton>
-                            </Box>
+                          <Box>
+                            <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                            <IconButton size="small"><DeleteIcon fontSize="small" /></IconButton>
+                          </Box>
                         )}
                       </Box>
                     </Box>
@@ -249,32 +249,33 @@ export default function Biblioteca() {
                       {r.descripcion}
                     </Typography>
                     <Box mt="auto">
-                        {canAccess ? (
-                            <Button 
-                                variant="outlined" 
-                                size="small" 
-                                onClick={() => handleOpenRecurso(r)}
-                                fullWidth
-                            >
-                                {isAdmin ? "Ver Enlace" : "Ver Recurso"}
-                            </Button>
-                        ) : (
-                            <Button 
-                                variant="contained" 
-                                color="warning"
-                                size="small" 
-                                startIcon={<LockIcon />}
-                                onClick={() => navigate("/suscripciones")}
-                                fullWidth
-                            >
-                                Desbloquear
-                            </Button>
-                        )}
+                      {canAccess ? (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleOpenRecurso(r)}
+                          fullWidth
+                        >
+                          {isAdmin ? "Ver Enlace" : "Ver Recurso"}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          size="small"
+                          startIcon={<LockIcon />}
+                          onClick={() => navigate("/suscripciones")}
+                          fullWidth
+                        >
+                          Desbloquear
+                        </Button>
+                      )}
                     </Box>
                   </CardContent>
                 </Card>
               </Grid>
-            )})}
+            )
+          })}
       </Grid>
 
       <Dialog open={!!selectedRecurso} onClose={handleClose} maxWidth="md" fullWidth>
@@ -282,39 +283,39 @@ export default function Biblioteca() {
         <DialogContent dividers>
           {selectedRecurso?.tipo === "video" && (
             <Box display="flex" justifyContent="center" my={2}>
-               {/* Simulating video embed. In real app, parse URL to get embed ID */}
-               <Box 
-                 width="100%" 
-                 height={400} 
-                 bgcolor="black" 
-                 display="flex" 
-                 alignItems="center" 
-                 justifyContent="center"
-                 color="white"
-               >
-                 <Typography>Reproductor de Video Simulado ({selectedRecurso.url})</Typography>
-               </Box>
+              {/* Simulating video embed. In real app, parse URL to get embed ID */}
+              <Box
+                width="100%"
+                height={400}
+                bgcolor="black"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                color="white"
+              >
+                <Typography>Reproductor de Video Simulado ({selectedRecurso.url})</Typography>
+              </Box>
             </Box>
           )}
-          
+
           {selectedRecurso?.tipo === "audio" && (
             <Box display="flex" flexDirection="column" alignItems="center" my={4}>
-               <HeadphonesIcon sx={{ fontSize: 60, color: "text.secondary", mb: 2 }} />
-               <audio controls style={{ width: "100%" }}>
-                 <source src={selectedRecurso.url} type="audio/mpeg" />
-                 Tu navegador no soporta audio.
-               </audio>
+              <HeadphonesIcon sx={{ fontSize: 60, color: "text.secondary", mb: 2 }} />
+              <audio controls style={{ width: "100%" }}>
+                <source src={selectedRecurso.url} type="audio/mpeg" />
+                Tu navegador no soporta audio.
+              </audio>
             </Box>
           )}
 
           {selectedRecurso?.tipo === "articulo" && (
             <Box>
               <Typography paragraph>
-                Aquí se mostraría el contenido completo del artículo. Como estamos usando URLs externas de ejemplo, 
+                Aquí se mostraría el contenido completo del artículo. Como estamos usando URLs externas de ejemplo,
                 no podemos incrustarlas directamente por seguridad (CORS/X-Frame-Options).
               </Typography>
               <Typography paragraph>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
               </Typography>
               <Button variant="contained" href={selectedRecurso.url} target="_blank">

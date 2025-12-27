@@ -48,7 +48,7 @@ export default function Sesiones() {
         api.get("/citas/profesionales"),
         api.get("/citas"),
       ]);
-      
+
       if (profRes.data && profRes.data.length > 0) {
         setProfesionales(profRes.data);
       } else {
@@ -78,8 +78,8 @@ export default function Sesiones() {
       console.error("Error cargando datos:", error);
       // Fallback
       setProfesionales([
-          { _id: "1", nombre: "Dra. María González", email: "maria@example.com" },
-          { _id: "2", nombre: "Dr. Juan Pérez", email: "juan@example.com" },
+        { _id: "1", nombre: "Dra. María González", email: "maria@example.com" },
+        { _id: "2", nombre: "Dr. Juan Pérez", email: "juan@example.com" },
       ]);
     }
   };
@@ -108,23 +108,23 @@ export default function Sesiones() {
   const handleCancelarCita = async (id: string) => {
     if (!window.confirm("¿Estás seguro de que quieres cancelar esta cita?")) return;
     try {
-        await api.delete(`/citas/${id}`);
-        setCitas(citas.filter(c => c._id !== id));
+      await api.delete(`/citas/${id}`);
+      setCitas(citas.filter(c => c._id !== id));
     } catch (error) {
-        console.error("Error cancelando cita:", error);
+      console.error("Error cancelando cita:", error);
     }
   };
 
   const handleReprogramarClick = (cita: Cita) => {
-      // For simplicity, we just delete and open dialog to book new one with same professional
-      // In real app, we would have a specific endpoint for update
-      if (!window.confirm("Para reprogramar, cancelaremos la cita actual y podrás elegir una nueva fecha. ¿Continuar?")) return;
-      handleCancelarCita(cita._id);
-      handleReservarClick(cita.profesional);
+    // For simplicity, we just delete and open dialog to book new one with same professional
+    // In real app, we would have a specific endpoint for update
+    if (!window.confirm("Para reprogramar, cancelaremos la cita actual y podrás elegir una nueva fecha. ¿Continuar?")) return;
+    handleCancelarCita(cita._id);
+    handleReservarClick(cita.profesional);
   };
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Typography variant="h4" fontWeight={700} gutterBottom>
         Teleconsultas
       </Typography>
@@ -144,55 +144,55 @@ export default function Sesiones() {
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="start">
-                      <Box>
-                        <Typography fontWeight={700} variant="h6">
-                            {new Date(cita.fecha).toLocaleString()}
-                        </Typography>
-                        <Typography color="text.secondary" gutterBottom>
-                            Profesional: {cita.profesional?.nombre || "N/A"}
-                        </Typography>
-                        <Chip
-                            label={cita.estado.toUpperCase()}
-                            color={
-                            cita.estado === "confirmada"
-                                ? "success"
-                                : cita.estado === "pendiente"
-                                ? "warning"
-                                : "default"
-                            }
-                            size="small"
-                            sx={{ mt: 1 }}
-                        />
-                      </Box>
-                      <Box display="flex" flexDirection="column" gap={1}>
-                          {cita.linkReunion && (
-                            <Button
-                            href={cita.linkReunion}
-                            target="_blank"
-                            variant="contained"
-                            size="small"
-                            color="primary"
-                            >
-                            Unirse
-                            </Button>
-                          )}
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
-                            color="warning"
-                            onClick={() => handleReprogramarClick(cita)}
-                          >
-                              Reprogramar
-                          </Button>
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
-                            color="error"
-                            onClick={() => handleCancelarCita(cita._id)}
-                          >
-                              Cancelar
-                          </Button>
-                      </Box>
+                    <Box>
+                      <Typography fontWeight={700} variant="h6">
+                        {new Date(cita.fecha).toLocaleString()}
+                      </Typography>
+                      <Typography color="text.secondary" gutterBottom>
+                        Profesional: {cita.profesional?.nombre || "N/A"}
+                      </Typography>
+                      <Chip
+                        label={cita.estado.toUpperCase()}
+                        color={
+                          cita.estado === "confirmada"
+                            ? "success"
+                            : cita.estado === "pendiente"
+                              ? "warning"
+                              : "default"
+                        }
+                        size="small"
+                        sx={{ mt: 1 }}
+                      />
+                    </Box>
+                    <Box display="flex" flexDirection="column" gap={1}>
+                      {cita.linkReunion && (
+                        <Button
+                          href={cita.linkReunion}
+                          target="_blank"
+                          variant="contained"
+                          size="small"
+                          color="primary"
+                        >
+                          Unirse
+                        </Button>
+                      )}
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="warning"
+                        onClick={() => handleReprogramarClick(cita)}
+                      >
+                        Reprogramar
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={() => handleCancelarCita(cita._id)}
+                      >
+                        Cancelar
+                      </Button>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
