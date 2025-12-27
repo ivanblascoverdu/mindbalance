@@ -7,9 +7,17 @@ import WeeklyProgress from "../components/WeeklyProgress";
 import RecommendedResources from "../components/RecommendedResources";
 import NextSession from "../components/NextSession";
 import ProgressChart from "../components/ProgressChart";
+import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const { usuario } = useAuth();
+
+  // TODO: Estos datos deberían venir de la API basados en el usuario
+  // Por ahora, un usuario nuevo no tiene datos
+  const [userActivities] = useState([]);
+  const [nextSession] = useState(null);
+  const [progressData] = useState(null);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -23,7 +31,7 @@ export default function Dashboard() {
     >
       <Box>
         <Typography variant="h4" fontWeight={700} gutterBottom>
-          Bienvenido a tu espacio de bienestar
+          Bienvenido{usuario?.nombre ? `, ${usuario.nombre.split(' ')[0]}` : ''} 👋
         </Typography>
         <Typography color="text.secondary" mb={3}>
           Hoy es un buen día para cuidar de ti mismo
@@ -40,7 +48,7 @@ export default function Dashboard() {
                 sx={{ borderRadius: 2 }}
               />
             ) : (
-              <WeeklyProgress />
+              <WeeklyProgress activities={userActivities} />
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -62,7 +70,7 @@ export default function Dashboard() {
                 sx={{ borderRadius: 2 }}
               />
             ) : (
-              <NextSession />
+              <NextSession session={nextSession} />
             )}
           </Grid>
           <Grid size={{ xs: 12 }}>
@@ -73,7 +81,7 @@ export default function Dashboard() {
                 sx={{ borderRadius: 2 }}
               />
             ) : (
-              <ProgressChart />
+              <ProgressChart data={progressData} />
             )}
           </Grid>
         </Grid>
