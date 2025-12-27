@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
+import googleAuthRoutes from "./routes/googleAuth.js";
 import programaRoutes from "./routes/programa.js";
 import recursoRoutes from "./routes/recurso.js";
 import postRoutes from "./routes/post.js";
@@ -23,6 +24,7 @@ app.use(express.json());
 
 // Rutas
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", googleAuthRoutes);
 app.use("/api/programas", programaRoutes);
 app.use("/api/recursos", recursoRoutes);
 app.use("/api/posts", postRoutes);

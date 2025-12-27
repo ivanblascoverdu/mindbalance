@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 export interface IUsuario extends Document {
   nombre: string;
   email: string;
-  password: string;
+  password?: string;
+  googleId?: string;
   rol: "usuario" | "profesional" | "admin";
   estado: "activo" | "inactivo" | "pendiente";
   fechaRegistro: Date;
@@ -30,9 +31,14 @@ const usuarioSchema = new Schema<IUsuario>({
   },
   password: {
     type: String,
-    required: [true, "La contraseña es obligatoria"],
+    required: false,
     minlength: [5, "La contraseña debe tener al menos 5 caracteres"],
     select: false,
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
   },
   rol: {
     type: String,
@@ -64,7 +70,7 @@ const usuarioSchema = new Schema<IUsuario>({
 });
 
 usuarioSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -76,6 +82,7 @@ usuarioSchema.pre("save", async function (next) {
 });
 
 usuarioSchema.methods.matchPassword = async function (password: string) {
+  if (!this.password) return false;
   return await bcrypt.compare(password, this.password);
 };
 
