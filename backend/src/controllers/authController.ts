@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import Usuario from "../models/Usuario.js";
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
+const JWT_SECRET = env.JWT_SECRET;
 
 // Generar Token
 const generarToken = (id: string) => {

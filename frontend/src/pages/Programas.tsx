@@ -9,14 +9,19 @@ import {
   Skeleton,
   IconButton,
   Chip,
+  Stack,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LockIcon from "@mui/icons-material/Lock";
+import AddIcon from "@mui/icons-material/Add";
+import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import { useNavigate } from "react-router-dom";
+import { staggerContainer, staggerItem } from "../components/PageTransition";
 
 interface Programa {
   _id: string;
@@ -24,9 +29,11 @@ interface Programa {
   descripcion: string;
   sesiones: number;
   sesionesCompletadas: number;
-  color: any;
+  color?: "primary" | "secondary" | "success" | "warning" | "error" | "info";
   isPremium?: boolean;
 }
+
+const MotionCard = motion(Card);
 
 export default function Programas() {
   const [loading, setLoading] = useState(true);
@@ -38,94 +45,36 @@ export default function Programas() {
   const hasAccess = (programa: Programa) => {
     if (isAdmin) return true;
     if (!programa.isPremium) return true;
-    return usuario?.suscripcion === "premium" || usuario?.suscripcion === "profesional";
+    return (
+      usuario?.suscripcion === "premium" ||
+      usuario?.suscripcion === "profesional"
+    );
   };
 
   useEffect(() => {
     const fetchProgramas = async () => {
       try {
         const { data } = await api.get("/programas");
-        if (data && data.length > 0) {
-          setProgramas(data);
-        } else {
-          // Mock data for demonstration
-          setProgramas([
-            {
-              _id: "1",
-              titulo: "Gestión de la Ansiedad",
-              descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
-              sesiones: 8,
-              sesionesCompletadas: 3,
-              color: "primary",
-            },
-            {
-              _id: "2",
-              titulo: "Mindfulness Básico",
-              descripcion: "Introducción a la atención plena para reducir el estrés.",
-              sesiones: 5,
-              sesionesCompletadas: 1,
-              color: "secondary",
-            },
-            {
-              _id: "3",
-              titulo: "Mejora tu Sueño",
-              descripcion: "Estrategias para establecer una rutina de sueño saludable.",
-              sesiones: 6,
-              sesionesCompletadas: 0,
-              color: "success",
-            },
-            {
-              _id: "4",
-              titulo: "Autoestima y Confianza",
-              descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
-              sesiones: 10,
-              sesionesCompletadas: 0,
-              color: "warning",
-              isPremium: true,
-            },
-          ]);
-        }
-      } catch (error) {
-        console.error("Error cargando programas:", error);
-        // Fallback mock data on error
-        setProgramas([
-          {
-            _id: "1",
-            titulo: "Gestión de la Ansiedad",
-            descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
-            sesiones: 8,
-            sesionesCompletadas: 3,
-            color: "primary",
-          },
-          {
-            _id: "2",
-            titulo: "Mindfulness Básico",
-            descripcion: "Introducción a la atención plena para reducir el estrés.",
-            sesiones: 5,
-            sesionesCompletadas: 1,
-            color: "secondary",
-          },
-          {
-            _id: "4",
-            titulo: "Autoestima y Confianza",
-            descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
-            sesiones: 10,
-            sesionesCompletadas: 0,
-            color: "warning",
-            isPremium: true,
-          },
-        ]);
+        setProgramas(data || []);
+      } catch {
+        setProgramas([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProgramas();
   }, []);
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems={{ xs: "flex-start", sm: "center" }}
+        flexDirection={{ xs: "column", sm: "row" }}
+        gap={2}
+        mb={4}
+      >
         <Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>
             Programas Terapéuticos
@@ -135,92 +84,201 @@ export default function Programas() {
           </Typography>
         </Box>
         {isAdmin && (
-          <Button variant="contained" color="primary">
-            + Nuevo Programa
+          <Button variant="contained" color="primary" startIcon={<AddIcon />}>
+            Nuevo programa
           </Button>
         )}
       </Box>
 
-      <Grid container spacing={3}>
-        {loading
-          ? [1, 2, 3, 4].map((n) => (
+      {loading ? (
+        <Grid container spacing={3}>
+          {[1, 2, 3, 4].map((n) => (
             <Grid size={{ xs: 12, md: 6, lg: 3 }} key={n}>
-              <Skeleton
-                variant="rectangular"
-                height={230}
-                sx={{ borderRadius: 2 }}
-              />
+              <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 4 }} />
             </Grid>
-          ))
-          : programas.map((p) => {
+          ))}
+        </Grid>
+      ) : programas.length === 0 ? (
+        <Box
+          sx={{
+            textAlign: "center",
+            py: 10,
+            px: 3,
+            border: "2px dashed",
+            borderColor: "divider",
+            borderRadius: 4,
+          }}
+        >
+          <Box
+            sx={{
+              width: 72,
+              height: 72,
+              mx: "auto",
+              borderRadius: "50%",
+              bgcolor: "rgba(42,157,143,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "primary.main",
+              mb: 2,
+            }}
+          >
+            <LocalLibraryIcon sx={{ fontSize: 36 }} />
+          </Box>
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            Aún no hay programas disponibles
+          </Typography>
+          <Typography color="text.secondary" sx={{ maxWidth: 380, mx: "auto" }}>
+            Pronto añadiremos nuevos programas terapéuticos basados en
+            evidencia. Vuelve a consultar más tarde.
+          </Typography>
+        </Box>
+      ) : (
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="enter"
+        >
+        <Grid container spacing={3}>
+          {programas.map((p) => {
             const accessible = hasAccess(p);
+            const progress = p.sesiones
+              ? (p.sesionesCompletadas / p.sesiones) * 100
+              : 0;
             return (
               <Grid size={{ xs: 12, md: 6, lg: 3 }} key={p._id}>
-                <Card variant="outlined" sx={{ position: 'relative', opacity: accessible ? 1 : 0.8 }}>
+                <motion.div variants={staggerItem} style={{ height: "100%" }}>
+                <MotionCard
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  sx={{
+                    position: "relative",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    opacity: accessible ? 1 : 0.85,
+                    cursor: accessible ? "pointer" : "default",
+                    transition: "box-shadow 0.25s ease",
+                    "&:hover": {
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.08)",
+                    },
+                  }}
+                  onClick={() =>
+                    !isAdmin &&
+                    (accessible
+                      ? navigate(`/programas/${p._id}`)
+                      : navigate("/suscripciones"))
+                  }
+                >
                   {p.isPremium && (
                     <Chip
                       label="PREMIUM"
                       color="warning"
                       size="small"
-                      sx={{ position: 'absolute', top: 10, right: 10, fontWeight: 'bold' }}
+                      sx={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        fontWeight: 700,
+                        fontSize: 10,
+                        letterSpacing: 0.5,
+                      }}
                     />
                   )}
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="start">
-                      <Typography fontWeight={700} sx={{ pr: 4 }}>{p.titulo}</Typography>
+                  <CardContent
+                    sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+                  >
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                      <Typography fontWeight={700} sx={{ pr: 4, fontSize: "1.05rem" }}>
+                        {p.titulo}
+                      </Typography>
                       {isAdmin && (
-                        <Box>
-                          <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
-                          <IconButton size="small"><DeleteIcon fontSize="small" /></IconButton>
-                        </Box>
+                        <Stack direction="row">
+                          <IconButton size="small" onClick={(e) => e.stopPropagation()}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={(e) => e.stopPropagation()}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
                       )}
-                    </Box>
-                    <Typography
-                      fontSize={14}
-                      color="text.secondary"
-                      gutterBottom
-                    >
+                    </Stack>
+
+                    <Typography fontSize={13} color="text.secondary" sx={{ mt: 0.5 }}>
                       {p.sesiones} sesiones
                     </Typography>
-                    <Typography mb={2}>{p.descripcion}</Typography>
+
+                    <Typography
+                      sx={{
+                        my: 2,
+                        color: "text.secondary",
+                        fontSize: 14,
+                        flexGrow: 1,
+                      }}
+                    >
+                      {p.descripcion}
+                    </Typography>
 
                     {!isAdmin && (
                       <>
-                        <Typography fontWeight={700}>
-                          {p.sesionesCompletadas} de {p.sesiones} completadas
-                        </Typography>
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={1}
+                        >
+                          <Typography fontSize={13} fontWeight={600}>
+                            Progreso
+                          </Typography>
+                          <Typography fontSize={13} color="text.secondary">
+                            {p.sesionesCompletadas}/{p.sesiones}
+                          </Typography>
+                        </Stack>
                         <LinearProgress
                           variant="determinate"
-                          value={(p.sesionesCompletadas / p.sesiones) * 100}
+                          value={progress}
                           color={p.color || "primary"}
-                          sx={{ my: 2, height: 7, borderRadius: 2 }}
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            mb: 2,
+                            bgcolor: "rgba(0,0,0,0.05)",
+                          }}
                         />
                         <Button
-                          variant="contained"
+                          variant={accessible ? "contained" : "outlined"}
                           fullWidth
-                          color={accessible ? (p.color || "primary") : "inherit"}
+                          color={accessible ? p.color || "primary" : "inherit"}
                           startIcon={!accessible ? <LockIcon /> : null}
-                          onClick={() => accessible ? navigate(`/programas/${p._id}`) : navigate('/suscripciones')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            accessible
+                              ? navigate(`/programas/${p._id}`)
+                              : navigate("/suscripciones");
+                          }}
                         >
                           {accessible
-                            ? (p.sesionesCompletadas === 0 ? "Comenzar programa" : "Continuar programa")
-                            : "Desbloquear con Premium"
-                          }
+                            ? p.sesionesCompletadas === 0
+                              ? "Comenzar"
+                              : "Continuar"
+                            : "Desbloquear Premium"}
                         </Button>
                       </>
                     )}
 
                     {isAdmin && (
-                      <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
-                        Editar Contenido
+                      <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
+                        Editar contenido
                       </Button>
                     )}
                   </CardContent>
-                </Card>
+                </MotionCard>
+                </motion.div>
               </Grid>
-            )
+            );
           })}
-      </Grid>
+        </Grid>
+        </motion.div>
+      )}
     </Box>
   );
 }

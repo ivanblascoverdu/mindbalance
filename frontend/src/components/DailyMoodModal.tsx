@@ -46,12 +46,9 @@ export default function DailyMoodModal({ open, onClose }: Props) {
     };
 
     try {
-      // Try to save to backend
       await api.post("/diario", entry);
-      console.log("Saved to backend");
-    } catch (error) {
-      console.warn("Backend not available, saving to localStorage", error);
-      // Fallback to localStorage
+    } catch {
+      // Fallback a localStorage si el backend no está disponible
       const existing = JSON.parse(localStorage.getItem("diario") || "[]");
       localStorage.setItem("diario", JSON.stringify([...existing, entry]));
     }

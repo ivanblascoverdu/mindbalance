@@ -16,6 +16,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import api from "../services/api";
 import ArticleIcon from "@mui/icons-material/Article";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
@@ -25,6 +26,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "../context/AuthContext";
 import LockIcon from "@mui/icons-material/Lock";
 import { useNavigate } from "react-router-dom";
+import { staggerContainer, staggerItem } from "../components/PageTransition";
+
+const MotionCard = motion(Card);
 
 interface Recurso {
   _id: string;
@@ -200,14 +204,20 @@ export default function Biblioteca() {
         </Tabs>
       </Box>
 
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="enter"
+        key={filtroTipo}
+      >
       <Grid container spacing={3} sx={{ width: "100%" }}>
         {loading
           ? [1, 2, 3, 4, 5, 6].map((n) => (
             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={n}>
               <Skeleton
                 variant="rectangular"
-                height={180}
-                sx={{ borderRadius: 2 }}
+                height={200}
+                sx={{ borderRadius: 4 }}
               />
             </Grid>
           ))
@@ -215,7 +225,17 @@ export default function Biblioteca() {
             const canAccess = !r.esPremium || hasSubscription;
             return (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={r._id}>
-                <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                <motion.div variants={staggerItem} style={{ height: "100%" }}>
+                <MotionCard
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "box-shadow 0.25s ease",
+                    "&:hover": { boxShadow: "0 12px 32px rgba(0,0,0,0.08)" },
+                  }}
+                >
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box display="flex" justifyContent="space-between" mb={1}>
                       <Chip label={r.categoria} size="small" color="primary" variant="outlined" />
@@ -272,11 +292,13 @@ export default function Biblioteca() {
                       )}
                     </Box>
                   </CardContent>
-                </Card>
+                </MotionCard>
+                </motion.div>
               </Grid>
             )
           })}
       </Grid>
+      </motion.div>
 
       <Dialog open={!!selectedRecurso} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>{selectedRecurso?.titulo}</DialogTitle>

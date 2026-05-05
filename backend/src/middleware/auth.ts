@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
+const JWT_SECRET = env.JWT_SECRET;
 
 export const autenticar = (req: Request, res: Response, next: NextFunction) => {
   try {

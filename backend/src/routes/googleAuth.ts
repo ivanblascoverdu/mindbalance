@@ -1,12 +1,12 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import Usuario from "../models/Usuario.js";
+import { env } from "../config/env.js";
 
 const router = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || "tu-clave-super-secreta";
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const JWT_SECRET = env.JWT_SECRET;
+const GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID;
 
 // Generar Token
 const generarToken = (id: string) => {
