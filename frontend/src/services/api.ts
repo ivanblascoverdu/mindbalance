@@ -7,7 +7,8 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 20000,
+  // 60s para tolerar cold starts en backends free tier (Render, Railway)
+  timeout: 60000,
 });
 
 api.interceptors.request.use(
@@ -49,10 +50,13 @@ api.interceptors.response.use(
         })
       );
     } else if (status === 0 || error.code === "ECONNABORTED" || !error.response) {
+      const isTimeout = error.code === "ECONNABORTED";
       window.dispatchEvent(
         new CustomEvent("api:error", {
           detail: {
-            message: "Sin conexión con el servidor. Comprueba tu red.",
+            message: isTimeout
+              ? "El servidor está tardando en responder. Si es la primera petición, espera unos segundos y vuelve a intentarlo."
+              : "No se ha podido contactar con el servidor. Inténtalo de nuevo.",
             severity: "warning",
           },
         })

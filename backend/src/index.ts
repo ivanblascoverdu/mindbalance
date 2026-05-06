@@ -14,18 +14,27 @@ import chatRoutes from "./routes/chat.js";
 
 const app = express();
 
-// CORS — restrictivo en producción, abierto en desarrollo
+// CORS — restrictivo si FRONTEND_URL está configurado; abierto si no (con warning)
 const allowedOrigins = env.FRONTEND_URL
   ? env.FRONTEND_URL.split(",").map((s) => s.trim())
   : [];
+
+const isVercelPreview = (origin: string) =>
+  /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Permitir requests sin origin (Postman, curl, healthchecks)
       if (!origin) return callback(null, true);
+      // En desarrollo: todo permitido
       if (!isProduction) return callback(null, true);
+      // Si no se configuró whitelist, no bloquear (mejor disponible que caído)
+      if (allowedOrigins.length === 0) return callback(null, true);
+      // Whitelist explícita
       if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Tolerar previews automáticas de Vercel
+      if (isVercelPreview(origin)) return callback(null, true);
       return callback(new Error(`Origen no permitido: ${origin}`));
     },
     credentials: true,

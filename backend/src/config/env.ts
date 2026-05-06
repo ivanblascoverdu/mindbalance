@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// JWT_SECRET y MONGODB_URI son críticos: sin ellos la app no puede operar
 const required = ["JWT_SECRET", "MONGODB_URI"] as const;
-
 const missing = required.filter((key) => !process.env[key]);
 
 if (missing.length > 0) {
@@ -14,12 +14,20 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// JWT_SECRET corto: warning en lugar de crash (mejor que la app esté arriba)
 if (process.env.NODE_ENV === "production" && process.env.JWT_SECRET!.length < 32) {
   // eslint-disable-next-line no-console
-  console.error(
-    "❌ JWT_SECRET debe tener al menos 32 caracteres en producción"
+  console.warn(
+    "⚠️  JWT_SECRET tiene menos de 32 caracteres — recomendado regenerar con: openssl rand -base64 48"
   );
-  process.exit(1);
+}
+
+// FRONTEND_URL no configurado en producción: warning, no crash
+if (process.env.NODE_ENV === "production" && !process.env.FRONTEND_URL) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "⚠️  FRONTEND_URL no configurado — CORS aceptará cualquier origen. Configúralo cuanto antes."
+  );
 }
 
 export const env = {
