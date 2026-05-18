@@ -1,5 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export interface ISesionContenido {
+  titulo: string;
+  descripcion?: string;
+  videoUrl?: string;
+  puntos?: number;
+  duracion?: string;
+}
+
 export interface IPrograma extends Document {
   titulo: string;
   descripcion: string;
@@ -8,9 +16,21 @@ export interface IPrograma extends Document {
   sesionesCompletadas: number;
   color: string;
   categoria: string;
-  contenido: string[];
+  contenido: ISesionContenido[];
+  isPremium?: boolean;
   createdAt: Date;
 }
+
+const sesionContenidoSchema = new Schema<ISesionContenido>(
+  {
+    titulo: { type: String, required: true },
+    descripcion: { type: String },
+    videoUrl: { type: String },
+    puntos: { type: Number, default: 50 },
+    duracion: { type: String },
+  },
+  { _id: false }
+);
 
 const programaSchema = new Schema<IPrograma>({
   titulo: {
@@ -43,11 +63,14 @@ const programaSchema = new Schema<IPrograma>({
     enum: ["mindfulness", "emoción", "sueño", "estrés"],
     required: true,
   },
-  contenido: [
-    {
-      type: String,
-    },
-  ],
+  contenido: {
+    type: [sesionContenidoSchema],
+    default: [],
+  },
+  isPremium: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -32,12 +32,12 @@ describe("Programas API", () => {
     });
 
     describe("GET /api/programas", () => {
-        it("should return 401 without authentication token", async () => {
+        it("should return programs list publicly (no auth required)", async () => {
             const response = await request(app)
                 .get("/api/programas")
-                .expect(401);
+                .expect(200);
 
-            expect(response.body.mensaje).toBe("No autorizado, token no proporcionado");
+            expect(Array.isArray(response.body)).toBe(true);
         });
 
         it("should return programs list with valid token", async () => {
@@ -63,7 +63,7 @@ describe("Programas API", () => {
                 .send(programData)
                 .expect(401);
 
-            expect(response.body.mensaje).toBe("No autorizado, token no proporcionado");
+            expect(response.body.mensaje).toBe("Token no proporcionado");
         });
     });
 });

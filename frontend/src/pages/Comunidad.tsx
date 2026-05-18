@@ -147,52 +147,17 @@ export default function Comunidad() {
     const fetchPosts = async () => {
         try {
             const { data } = await api.get("/posts");
-            let loadedPosts = data && data.length > 0 ? data : [];
+            const loadedPosts: Post[] = Array.isArray(data) ? data : [];
 
-            // Fallback data if empty
-            if (loadedPosts.length === 0) {
-                loadedPosts = [
-                    {
-                        _id: "1",
-                        usuario: { _id: "u1", nombre: "Ana García", email: "ana@test.com" },
-                        texto: "Hoy he completado mi primera semana de meditación. ¡Me siento mucho más tranquila! #Mindfulness",
-                        likes: ["u2", "u3"],
-                        comentarios: [
-                            { usuario: { _id: "u2", nombre: "Carlos" }, texto: "¡Enhorabuena! Sigue así.", createdAt: new Date().toISOString() }
-                        ],
-                        createdAt: new Date().toISOString(),
-                    },
-                    {
-                        _id: "2",
-                        usuario: { _id: "u3", nombre: "Pedro López", email: "pedro@test.com" },
-                        texto: "¿Alguien tiene consejos para manejar el estrés laboral? #Ansiedad",
-                        likes: [],
-                        comentarios: [],
-                        createdAt: new Date(Date.now() - 86400000).toISOString(),
-                    },
-                ];
-            }
-
-            // Filter by hashtag if active
             if (activeHashtag) {
                 const hashtagClean = activeHashtag.replace("#", "").toLowerCase();
-                // Filter existing posts
-                const filtered = loadedPosts.filter((p: Post) => p.texto.toLowerCase().includes(hashtagClean));
-
-                // Add mock posts for the hashtag to make it look populated
-                const mockHashtagPosts = [
-                    { _id: `ht_1_${hashtagClean}`, usuario: { _id: "mock_h1", nombre: "Usuario Anónimo", email: "" }, texto: `Me encanta todo lo relacionado con ${activeHashtag}. Es muy útil.`, likes: ["u1"], comentarios: [], createdAt: new Date().toISOString() },
-                    { _id: `ht_2_${hashtagClean}`, usuario: { _id: "mock_h2", nombre: "Comunidad Zen", email: "" }, texto: `Aquí compartiendo recursos sobre ${activeHashtag}.`, likes: ["u2", "u3"], comentarios: [], createdAt: new Date().toISOString() },
-                    { _id: `ht_3_${hashtagClean}`, usuario: { _id: "mock_h3", nombre: "MindBalance Official", email: "" }, texto: `Nuevo artículo sobre ${activeHashtag} disponible en la biblioteca.`, likes: ["u1", "u2", "u3", "u4"], comentarios: [], createdAt: new Date().toISOString() },
-                ];
-
-                setPosts([...filtered, ...mockHashtagPosts]);
+                setPosts(loadedPosts.filter((p) => p.texto.toLowerCase().includes(hashtagClean)));
             } else {
                 setPosts(loadedPosts);
             }
-
         } catch (error) {
             console.error("Error cargando posts:", error);
+            setPosts([]);
         }
     };
 
@@ -220,12 +185,10 @@ export default function Comunidad() {
             return p;
         }));
 
-        if (!id.startsWith("ht_") && !id.startsWith("p_m_")) { // Only call API for real posts
-            try {
-                await api.put(`/posts/${id}/like`);
-            } catch (error) {
-                console.error("Error dando like:", error);
-            }
+        try {
+            await api.put(`/posts/${id}/like`);
+        } catch (error) {
+            console.error("Error dando like:", error);
         }
     };
 
@@ -238,12 +201,10 @@ export default function Comunidad() {
         setPosts(posts.map(p => p._id === id ? { ...p, comentarios: [...p.comentarios, newComment] } : p));
         setComentarioTexto({ ...comentarioTexto, [id]: "" });
 
-        if (!id.startsWith("ht_") && !id.startsWith("p_m_")) {
-            try {
-                await api.post(`/posts/${id}/comentar`, { texto });
-            } catch (error) {
-                console.error("Error comentando:", error);
-            }
+        try {
+            await api.post(`/posts/${id}/comentar`, { texto });
+        } catch (error) {
+            console.error("Error comentando:", error);
         }
     };
 
@@ -330,6 +291,15 @@ export default function Comunidad() {
                             </CardContent>
                         </Card>
 
+                        {posts.length === 0 && (
+                            <Card variant="outlined" sx={{ mb: 2, textAlign: "center", py: 6 }}>
+                                <Typography color="text.secondary">
+                                    {activeHashtag
+                                        ? `Aún no hay publicaciones sobre ${activeHashtag}.`
+                                        : "Aún no hay publicaciones. ¡Sé el primero en compartir algo!"}
+                                </Typography>
+                            </Card>
+                        )}
                         {posts.map((post) => (
                             <Card key={post._id} variant="outlined" sx={{ mb: 2 }}>
                                 <CardContent>

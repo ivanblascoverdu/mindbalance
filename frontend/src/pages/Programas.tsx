@@ -172,15 +172,18 @@ export default function Programas() {
                   {p.isPremium && (
                     <Chip
                       label="PREMIUM"
-                      color="warning"
                       size="small"
                       sx={{
                         position: "absolute",
                         top: 12,
                         right: 12,
                         fontWeight: 700,
-                        fontSize: 10,
-                        letterSpacing: 0.5,
+                        fontSize: 9.5,
+                        letterSpacing: 0.6,
+                        height: 22,
+                        background: "linear-gradient(135deg, #C29A5B 0%, #A37D45 100%)",
+                        color: "#fff",
+                        boxShadow: "0 4px 10px rgba(194,154,91,0.35)",
                       }}
                     />
                   )}
@@ -188,7 +191,14 @@ export default function Programas() {
                     sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
                   >
                     <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                      <Typography fontWeight={700} sx={{ pr: 4, fontSize: "1.05rem" }}>
+                      <Typography
+                        fontWeight={700}
+                        sx={{
+                          pr: p.isPremium ? 10 : 4,
+                          fontSize: "1.05rem",
+                          lineHeight: 1.25,
+                        }}
+                      >
                         {p.titulo}
                       </Typography>
                       {isAdmin && (

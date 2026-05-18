@@ -48,39 +48,12 @@ export default function Sesiones() {
         api.get("/citas/profesionales"),
         api.get("/citas"),
       ]);
-
-      if (profRes.data && profRes.data.length > 0) {
-        setProfesionales(profRes.data);
-      } else {
-        setProfesionales([
-          { _id: "1", nombre: "Dra. María González", email: "maria@example.com" },
-          { _id: "2", nombre: "Dr. Juan Pérez", email: "juan@example.com" },
-          { _id: "3", nombre: "Dra. Laura García", email: "laura@example.com" },
-        ]);
-      }
-
-      if (citasRes.data && citasRes.data.length > 0) {
-        setCitas(citasRes.data);
-      } else {
-        // Mock citas only if empty
-        setCitas([
-          {
-            _id: "101",
-            profesional: { _id: "1", nombre: "Dra. María González", email: "maria@example.com" },
-            fecha: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-            estado: "confirmada",
-            linkReunion: "https://meet.google.com/abc-defg-hij",
-          },
-        ]);
-      }
-
+      setProfesionales(profRes.data || []);
+      setCitas(citasRes.data || []);
     } catch (error) {
       console.error("Error cargando datos:", error);
-      // Fallback
-      setProfesionales([
-        { _id: "1", nombre: "Dra. María González", email: "maria@example.com" },
-        { _id: "2", nombre: "Dr. Juan Pérez", email: "juan@example.com" },
-      ]);
+      setProfesionales([]);
+      setCitas([]);
     }
   };
 
@@ -204,6 +177,11 @@ export default function Sesiones() {
       <Typography variant="h5" fontWeight={700} gutterBottom mt={4}>
         Profesionales Disponibles
       </Typography>
+      {profesionales.length === 0 ? (
+        <Typography color="text.secondary">
+          Por el momento no hay profesionales disponibles. Vuelve a intentarlo más tarde.
+        </Typography>
+      ) : (
       <Grid container spacing={3}>
         {profesionales.map((p) => (
           <Grid size={{ xs: 12, md: 4 }} key={p._id}>
@@ -226,6 +204,7 @@ export default function Sesiones() {
           </Grid>
         ))}
       </Grid>
+      )}
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Reservar con {selectedProf?.nombre}</DialogTitle>
