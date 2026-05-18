@@ -36,47 +36,76 @@ const seedData = async () => {
         titulo: "Mindfulness para Principiantes",
         descripcion: "Aprende las bases de la atención plena para reducir el estrés diario.",
         duracion: "4 semanas",
-        sesiones: 8,
+        sesiones: 5,
         categoria: "mindfulness",
-        color: "#4caf50",
-        contenido: ["Introducción", "Respiración", "Escaneo corporal", "Atención plena en movimiento"],
+        color: "primary",
+        contenido: [
+          { titulo: "Qué es el Mindfulness", descripcion: "Introducción a la práctica de la atención plena.", videoUrl: "lFcSrYw-ARY", puntos: 50, duracion: "10 min" },
+          { titulo: "Escaneo corporal", descripcion: "Conecta con las sensaciones de tu cuerpo.", videoUrl: "ZToicYcHIOU", puntos: 50, duracion: "15 min" },
+          { titulo: "Atención a la respiración", descripcion: "Usa tu respiración como ancla al presente.", videoUrl: "w7aIdbwX6Ts", puntos: 60, duracion: "12 min" },
+          { titulo: "Mindfulness en movimiento", descripcion: "Lleva la atención plena a tus actividades diarias.", videoUrl: "inpok4MKVLM", puntos: 70, duracion: "20 min" },
+          { titulo: "Integración diaria", descripcion: "Cómo mantener la práctica día a día.", videoUrl: "1ZYbU82GVz4", puntos: 80, duracion: "15 min" },
+        ],
       },
       {
         titulo: "Gestión de la Ansiedad",
         descripcion: "Herramientas cognitivo-conductuales para manejar la ansiedad.",
         duracion: "6 semanas",
-        sesiones: 12,
+        sesiones: 8,
         categoria: "estrés",
-        color: "#ff9800",
-        contenido: ["Entendiendo la ansiedad", "Reestructuración cognitiva", "Exposición gradual"],
+        color: "warning",
+        contenido: [
+          { titulo: "Entendiendo la ansiedad", descripcion: "Comprende los mecanismos biológicos y psicológicos de la ansiedad.", videoUrl: "inpok4MKVLM", puntos: 50, duracion: "10 min" },
+          { titulo: "Respiración diafragmática", descripcion: "Técnica fundamental para reducir la activación fisiológica.", videoUrl: "w7aIdbwX6Ts", puntos: 50, duracion: "15 min" },
+          { titulo: "Identificando disparadores", descripcion: "Aprende a reconocer qué situaciones detonan tu ansiedad.", videoUrl: "1ZYbU82GVz4", puntos: 60, duracion: "12 min" },
+          { titulo: "Reestructuración cognitiva", descripcion: "Cambia los pensamientos que alimentan la ansiedad.", videoUrl: "lFcSrYw-ARY", puntos: 70, duracion: "20 min" },
+          { titulo: "Exposición gradual", descripcion: "Enfrenta tus miedos paso a paso de forma segura.", videoUrl: "nmFUDkj1Aq0", puntos: 80, duracion: "18 min" },
+          { titulo: "Mindfulness para ansiedad", descripcion: "Atención plena para reducir el estrés.", videoUrl: "ZToicYcHIOU", puntos: 60, duracion: "15 min" },
+          { titulo: "Prevención de recaídas", descripcion: "Mantén tus logros a largo plazo.", videoUrl: "tEmt1Znux58", puntos: 90, duracion: "25 min" },
+          { titulo: "Plan de acción personal", descripcion: "Crea tu propia caja de herramientas anti-ansiedad.", videoUrl: "inpok4MKVLM", puntos: 100, duracion: "30 min" },
+        ],
       },
       {
         titulo: "Mejora tu Sueño",
         descripcion: "Higiene del sueño y técnicas de relajación para dormir mejor.",
         duracion: "3 semanas",
-        sesiones: 6,
+        sesiones: 4,
         categoria: "sueño",
-        color: "#3f51b5",
-        contenido: ["Rutinas nocturnas", "Relajación muscular progresiva", "Diario de sueño"],
+        color: "info",
+        contenido: [
+          { titulo: "Rutinas nocturnas", descripcion: "Crea hábitos que preparen tu cuerpo para dormir.", videoUrl: "ZToicYcHIOU", puntos: 50, duracion: "12 min" },
+          { titulo: "Relajación muscular progresiva", descripcion: "Libera la tensión acumulada del día.", videoUrl: "w7aIdbwX6Ts", puntos: 60, duracion: "20 min" },
+          { titulo: "Higiene del sueño", descripcion: "Adapta tu entorno para descansar mejor.", videoUrl: "lFcSrYw-ARY", puntos: 60, duracion: "15 min" },
+          { titulo: "Diario de sueño", descripcion: "Detecta patrones y mejora tu descanso.", videoUrl: "tEmt1Znux58", puntos: 80, duracion: "18 min" },
+        ],
       },
       {
         titulo: "Autoestima y Autocompasión",
         descripcion: "Fortalece tu relación contigo mismo.",
         duracion: "5 semanas",
-        sesiones: 10,
+        sesiones: 6,
         categoria: "emoción",
-        color: "#e91e63",
-        contenido: ["El crítico interno", "Autocompasión", "Valores personales"],
+        color: "secondary",
+        isPremium: true,
+        contenido: [
+          { titulo: "Autoconocimiento", descripcion: "Descubre quién eres realmente.", videoUrl: "tEmt1Znux58", puntos: 50, duracion: "15 min" },
+          { titulo: "El crítico interno", descripcion: "Identifica y suaviza tu voz crítica.", videoUrl: "lFcSrYw-ARY", puntos: 60, duracion: "20 min" },
+          { titulo: "Autocompasión", descripcion: "Trátate con la amabilidad que mereces.", videoUrl: "ZToicYcHIOU", puntos: 70, duracion: "18 min" },
+          { titulo: "Valores personales", descripcion: "Identifica lo que es importante para ti.", videoUrl: "nmFUDkj1Aq0", puntos: 70, duracion: "20 min" },
+          { titulo: "Límites saludables", descripcion: "Aprende a decir no sin culpa.", videoUrl: "w7aIdbwX6Ts", puntos: 80, duracion: "25 min" },
+          { titulo: "Autocuidado integral", descripcion: "Cuida de ti en cuerpo y mente.", videoUrl: "inpok4MKVLM", puntos: 90, duracion: "20 min" },
+        ],
       },
     ];
 
     for (const p of programas) {
-      const existe = await Programa.findOne({ titulo: p.titulo });
-      if (!existe) {
-        await Programa.create(p);
-      }
+      await Programa.findOneAndUpdate(
+        { titulo: p.titulo },
+        p,
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
     }
-    console.log("📚 Programas verificados/creados");
+    console.log("📚 Programas verificados/actualizados");
 
     // 3. Crear Recursos (Biblioteca)
     const recursos = [

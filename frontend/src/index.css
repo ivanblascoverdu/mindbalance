@@ -1,11 +1,11 @@
 :root {
-  font-family: "Outfit", "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "Plus Jakarta Sans", "Inter", system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.55;
   font-weight: 400;
   color-scheme: light;
-  color: #264653;
-  background-color: #f4f9f9;
+  color: #1f3a40;
+  background-color: #f7fbf9;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -36,7 +36,7 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar — más sutil y on-brand */
+/* Scrollbar — sutil, on-brand */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -45,31 +45,63 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(38, 70, 83, 0.18);
-  border-radius: 8px;
+  background: rgba(31, 58, 64, 0.14);
+  border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
+  transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(38, 70, 83, 0.32);
+  background: rgba(31, 58, 64, 0.28);
   background-clip: padding-box;
   border: 2px solid transparent;
 }
 
-/* Selección de texto on-brand */
+/* Selección de texto */
 ::selection {
-  background: rgba(42, 157, 143, 0.25);
-  color: #264653;
+  background: rgba(58, 153, 138, 0.22);
+  color: #0e3832;
 }
 
-/* Mejor focus visible para accesibilidad */
+/* Focus visible accesible */
 :focus-visible {
-  outline: 2px solid #2a9d8f;
+  outline: 2px solid #3a998a;
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
-/* Reduce motion respetando preferencia del usuario */
+/* Keyframes globales para auras decorativas */
+@keyframes mb-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.04);
+  }
+}
+
+@keyframes mb-pulse-soft {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Auras decorativas opcionales con .mb-aura */
+.mb-aura {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+  animation: mb-float 12s ease-in-out infinite;
+}
+
+/* Respeto a prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -41,20 +41,21 @@ describe("Login Component", () => {
         renderLogin();
 
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /entrar/i })).toBeInTheDocument();
+        expect(screen.getByLabelText("Contraseña")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /iniciar sesión/i })).toBeInTheDocument();
     });
 
     it("renders register link", () => {
         renderLogin();
 
-        expect(screen.getByText(/¿no tienes cuenta\? regístrate/i)).toBeInTheDocument();
+        expect(screen.getByText(/¿no tienes cuenta\?/i)).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /crea una cuenta/i })).toBeInTheDocument();
     });
 
     it("shows validation error when submitting empty form", async () => {
         renderLogin();
 
-        const submitButton = screen.getByRole("button", { name: /entrar/i });
+        const submitButton = screen.getByRole("button", { name: /iniciar sesión/i });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
@@ -65,10 +66,10 @@ describe("Login Component", () => {
     it("toggles password visibility", () => {
         renderLogin();
 
-        const passwordInput = screen.getByLabelText(/contraseña/i);
+        const passwordInput = screen.getByLabelText("Contraseña");
         expect(passwordInput).toHaveAttribute("type", "password");
 
-        const toggleButton = screen.getByLabelText(/toggle password visibility/i);
+        const toggleButton = screen.getByLabelText(/mostrar contraseña/i);
         fireEvent.click(toggleButton);
 
         expect(passwordInput).toHaveAttribute("type", "text");

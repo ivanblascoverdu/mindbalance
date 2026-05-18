@@ -24,6 +24,7 @@ import PageTransition from "./components/PageTransition";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { TourProvider } from "./context/TourContext";
 
 // Lazy-load de páginas para mejorar el tiempo de carga inicial
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -126,7 +127,7 @@ function AppContent() {
     location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <>
+    <TourProvider>
       <CssBaseline />
       {!hideNav && <TopBar onMenuClick={() => setMobileOpen((s) => !s)} />}
       <Box sx={{ display: "flex" }}>
@@ -162,7 +163,7 @@ function AppContent() {
         {!hideNav && <Chatbot />}
       </Box>
       <GlobalSnackbar />
-    </>
+    </TourProvider>
   );
 }
 

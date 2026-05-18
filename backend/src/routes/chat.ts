@@ -1,10 +1,13 @@
 import { Router } from "express";
-import { chatWithAI } from "../controllers/chatController.js";
+import { chatWithAI, chatSuggestions } from "../controllers/chatController.js";
 import { autenticar } from "../middleware/auth.js";
 
 const router = Router();
 
-// Protegemos la ruta para que solo usuarios autenticados puedan usar el chat
+// Sugerencias iniciales (no requiere autenticación, no expone nada sensible)
+router.get("/suggestions", chatSuggestions);
+
+// Chat protegido — solo usuarios autenticados
 router.post("/", autenticar, chatWithAI);
 
 export default router;

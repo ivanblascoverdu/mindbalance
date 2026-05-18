@@ -73,3 +73,29 @@ export const listarProfesionales = async (req: Request, res: Response) => {
     res.status(500).json({ mensaje: "Error al listar profesionales", error });
   }
 };
+
+// Cancelar cita (el cliente que la creó o el profesional asignado)
+export const cancelarCita = async (req: Request, res: Response) => {
+  try {
+    const usuarioId = (req as any).usuarioId;
+    const cita = await Cita.findById(req.params.id);
+
+    if (!cita) {
+      return res.status(404).json({ mensaje: "Cita no encontrada" });
+    }
+
+    const esCliente = cita.cliente.toString() === usuarioId;
+    const esProfesional = cita.profesional.toString() === usuarioId;
+    const usuario = await Usuario.findById(usuarioId);
+    const esAdmin = usuario?.rol === "admin";
+
+    if (!esCliente && !esProfesional && !esAdmin) {
+      return res.status(403).json({ mensaje: "No tienes permiso para cancelar esta cita" });
+    }
+
+    await Cita.findByIdAndDelete(req.params.id);
+    res.json({ mensaje: "Cita cancelada" });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al cancelar cita", error });
+  }
+};

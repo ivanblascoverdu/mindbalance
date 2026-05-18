@@ -55,77 +55,16 @@ export default function ProgramaDetalle() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "info" });
   const [reflection, setReflection] = useState("");
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchPrograma = async () => {
       try {
-        const { data } = await api.get("/programas");
-        const found = data.find((p: Programa) => p._id === id);
-        if (found) {
-            setPrograma(found);
-        } else {
-            throw new Error("Programa no encontrado en API");
-        }
-      } catch (error) {
-        console.error("Error cargando programa, usando fallback:", error);
-        // Fallback Mock Data
-        const mockProgramas: Programa[] = [
-            {
-              _id: "1",
-              titulo: "Gestión de la Ansiedad",
-              descripcion: "Aprende técnicas efectivas para manejar la ansiedad en tu día a día.",
-              sesiones: 8,
-              sesionesCompletadas: 3,
-              color: "primary",
-              contenido: [
-                { titulo: "Entendiendo la ansiedad", descripcion: "Comprende los mecanismos biológicos y psicológicos de la ansiedad.", videoUrl: "inpok4MKVLM", puntos: 50, duracion: "10 min" },
-                { titulo: "Respiración diafragmática", descripcion: "Técnica fundamental para reducir la activación fisiológica.", videoUrl: "w7aIdbwX6Ts", puntos: 50, duracion: "15 min" },
-                { titulo: "Identificando disparadores", descripcion: "Aprende a reconocer qué situaciones detonan tu ansiedad.", videoUrl: "1ZYbU82GVz4", puntos: 60, duracion: "12 min" },
-                { titulo: "Reestructuración cognitiva", descripcion: "Cambia los pensamientos que alimentan la ansiedad.", videoUrl: "lFcSrYw-ARY", puntos: 70, duracion: "20 min" },
-                { titulo: "Exposición gradual", descripcion: "Enfrenta tus miedos paso a paso de forma segura.", videoUrl: "nmFUDkj1Aq0", puntos: 80, duracion: "18 min" },
-                { titulo: "Mindfulness para ansiedad", descripcion: "Atención plena para reducir el estrés.", videoUrl: "ZToicYcHIOU", puntos: 60, duracion: "15 min" },
-                { titulo: "Prevención de recaídas", descripcion: "Mantén tus logros a largo plazo.", videoUrl: "tEmt1Znux58", puntos: 90, duracion: "25 min" },
-                { titulo: "Plan de acción personal", descripcion: "Crea tu propia caja de herramientas anti-ansiedad.", videoUrl: "inpok4MKVLM", puntos: 100, duracion: "30 min" }
-              ]
-            },
-            {
-              _id: "2",
-              titulo: "Mindfulness Básico",
-              descripcion: "Introducción a la atención plena para reducir el estrés.",
-              sesiones: 5,
-              sesionesCompletadas: 1,
-              color: "secondary",
-              contenido: [
-                { titulo: "Qué es el Mindfulness", descripcion: "Introducción a la práctica de la atención plena.", videoUrl: "lFcSrYw-ARY", puntos: 50, duracion: "10 min" },
-                { titulo: "Escaneo corporal", descripcion: "Conecta con las sensaciones de tu cuerpo.", videoUrl: "ZToicYcHIOU", puntos: 50, duracion: "15 min" },
-                { titulo: "Atención a la respiración", descripcion: "Usa tu respiración como ancla al presente.", videoUrl: "w7aIdbwX6Ts", puntos: 60, duracion: "12 min" },
-                { titulo: "Mindfulness en movimiento", descripcion: "Lleva la atención plena a tus actividades diarias.", videoUrl: "inpok4MKVLM", puntos: 70, duracion: "20 min" },
-                { titulo: "Integración diaria", descripcion: "Cómo mantener la práctica día a día.", videoUrl: "1ZYbU82GVz4", puntos: 80, duracion: "15 min" }
-              ]
-            },
-            {
-                _id: "4",
-                titulo: "Autoestima y Confianza",
-                descripcion: "Fortalece tu autoconcepto y seguridad personal. (Exclusivo Premium)",
-                sesiones: 10,
-                sesionesCompletadas: 0,
-                color: "warning",
-                isPremium: true,
-                contenido: [
-                    { titulo: "Autoconocimiento", descripcion: "Descubre quién eres realmente.", videoUrl: "tEmt1Znux58", puntos: 50, duracion: "15 min" },
-                    { titulo: "Valores personales", descripcion: "Identifica lo que es importante para ti.", videoUrl: "nmFUDkj1Aq0", puntos: 50, duracion: "15 min" },
-                    { titulo: "Diálogo interno", descripcion: "Mejora cómo te hablas a ti mismo.", videoUrl: "lFcSrYw-ARY", puntos: 60, duracion: "20 min" },
-                    { titulo: "Aceptación", descripcion: "Acéptate incondicionalmente.", videoUrl: "ZToicYcHIOU", puntos: 70, duracion: "18 min" },
-                    { titulo: "Límites saludables", descripcion: "Aprende a decir no.", videoUrl: "w7aIdbwX6Ts", puntos: 80, duracion: "25 min" },
-                    { titulo: "Asertividad", descripcion: "Comunícate con confianza.", videoUrl: "inpok4MKVLM", puntos: 80, duracion: "20 min" },
-                    { titulo: "Logros y fortalezas", descripcion: "Reconoce tus éxitos.", videoUrl: "1ZYbU82GVz4", puntos: 90, duracion: "15 min" },
-                    { titulo: "Autocuidado", descripcion: "Cuida de ti mismo.", videoUrl: "lFcSrYw-ARY", puntos: 90, duracion: "20 min" },
-                    { titulo: "Proyección futura", descripcion: "Visualiza tu mejor versión.", videoUrl: "nmFUDkj1Aq0", puntos: 100, duracion: "25 min" },
-                    { titulo: "Celebración", descripcion: "Celebra tu camino.", videoUrl: "tEmt1Znux58", puntos: 100, duracion: "30 min" }
-                ]
-            }
-        ];
-        const foundMock = mockProgramas.find(p => p._id === id);
-        setPrograma(foundMock || mockProgramas[0]);
+        const { data } = await api.get(`/programas/${id}`);
+        setPrograma(data);
+      } catch (err) {
+        console.error("Error cargando programa:", err);
+        setError("No se pudo cargar el programa. Inténtalo de nuevo más tarde.");
       }
     };
     fetchPrograma();
@@ -169,6 +108,17 @@ export default function ProgramaDetalle() {
     });
     setReflection("");
   };
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate("/programas")} sx={{ mb: 2 }}>
+          Volver a Programas
+        </Button>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   if (!programa) {
     return <Typography p={4}>Cargando programa...</Typography>;
@@ -239,6 +189,7 @@ export default function ProgramaDetalle() {
                 )}
               </ListItemIcon>
               <ListItemText
+                disableTypography
                 primary={<Typography fontWeight={600}>{`Sesión ${index + 1}: ${sesion.titulo}`}</Typography>}
                 secondary={
                   <Box>
